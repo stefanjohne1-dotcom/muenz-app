@@ -3,22 +3,29 @@ import requests
 import base64
 import json
 
-# --- 1. OPTIK ---
+# --- 1. OPTIK & STYLING ---
 st.set_page_config(page_title="Papas Münz-Experte", layout="centered")
 
 st.markdown("""
     <style>
     div.stButton > button { width: 100%; height: 80px; border-radius: 15px; font-size: 18px !important; font-weight: bold; margin-bottom: 20px; }
     .stButton > button[kind="primary"] { background-color: #28a745 !important; color: white !important; }
-    .result-card { background-color: #ffffff; padding: 20px; border-radius: 15px; border-left: 8px solid #ffd700; color: #333; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); }
+    .price-tile { background-color: #ffc107; padding: 20px; border-radius: 15px; text-align: center; font-weight: bold; color: #333; margin-bottom: 20px; }
+    .result-card { background-color: #ffffff; padding: 20px; border-radius: 15px; border-left: 10px solid #ffd700; color: #333; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. KI FUNKTION ---
+# --- 2. HILFSFUNKTIONEN (PREISE & KI) ---
+
+def get_market_prices():
+    # In einer Profi-App kämen diese Daten live. Hier nutzen wir aktuelle Schätzwerte (Stand Feb 2026).
+    return {"Gold": 73.50, "Silber": 0.92}
+
 def analysiere_muenze(img1, img2, zustand):
     if "OPENAI_API_KEY" not in st.secrets:
         st.error("API-Key fehlt in den Secrets!")
         return None
+    
     try:
         b64_1 = base64.b64encode(img1.getvalue()).decode('utf-8')
         b64_2 = base64.b64encode(img2.getvalue()).decode('utf-8')
@@ -28,7 +35,20 @@ def analysiere_muenze(img1, img2, zustand):
             "Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}"
         }
 
-        prompt = f"Identifiziere diese Münze (beide Seiten). Zustand: {zustand}. Antworte als JSON: {{'name': '...', 'jahr': '...', 'metall': '...', 'reinheit': 0.0, 'gewicht': 0.0, 'marktwert_min': 0, 'marktwert_max': 0, 'info': '...'}}"
+        # Der Prompt sagt der KI jetzt ganz genau, dass sie den MARKTWERT schätzen soll
+        prompt = f"""
+        Identifiziere diese Münze anhand beider Seiten. Der Zustand ist '{zustand}'.
+        Antworte NUR als JSON mit:
+        {{
+          "name": "Name der Münze",
+          "jahr": "Jahr",
+          "metall": "Gold oder Silber oder Unedel",
+          "reinheit": 0.900,
+          "gewicht": 7.96,
+          "marktwert_sammler": "150 - 200€",
+          "info": "Warum wird sie so gehandelt? (z.B. Seltenheit, Erhaltung)"
+        }}
+        """
 
         payload = {
             "model": "gpt-4o-mini",
@@ -44,18 +64,28 @@ def analysiere_muenze(img1, img2, zustand):
             ],
             "response_format": { "type": "json_object" }
         }
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
         return response.json()['choices'][0]['message']['content']
-    except Exception as e:
+    except:
         return None
 
-# --- 3. LOGIK ---
+# --- 3. SEITEN-LOGIK ---
 if 'page' not in st.session_state: st.session_state.page = 'home'
 if 'sammlung' not in st.session_state: st.session_state.sammlung = []
 
 # HAUPTMENÜ
 if st.session_state.page == 'home':
     st.markdown("<h1 style='text-align: center;'>🪙 PAPAS MÜNZ-APP</h1>", unsafe_allow_html=True)
+    
+    # Anzeige der aktuellen Kurse direkt oben
+    prices = get_market_prices()
+    st.markdown(f"""
+        <div class="price-tile">
+            BÖRSENKURSE HEUTE<br>
+            Gold: {prices['Gold']}€/g | Silber: {prices['Silber']}€/g
+        </div>
+    """, unsafe_allow_html=True)
+
     if st.button("📸 NEUE MÜNZE SCANNEN", type="primary"):
         st.session_state.page = 'scanner'
         st.rerun()
@@ -63,40 +93,56 @@ if st.session_state.page == 'home':
         st.session_state.page = 'sammlung'
         st.rerun()
 
-# SCANNER (SCHRITT FÜR SCHRITT)
+# SCANNER
 elif st.session_state.page == 'scanner':
     if st.button("⬅️ ZURÜCK"):
         st.session_state.page = 'home'
         st.rerun()
 
+    st.write("### 1. Zustand & Fotos")
     zustand = st.select_slider("Zustand:", options=["Gebraucht", "Normal", "Sehr gut", "Neuwertig"])
     
-    # Foto 1: Vorderseite
-    foto1 = st.camera_input("1. FOTO: VORDERSEITE")
+    foto1 = st.camera_input("FOTO 1: VORDERSEITE")
     
-    # Erst wenn Foto 1 existiert, zeigen wir das Feld für Foto 2
     if foto1:
-        st.success("Vorderseite erfasst! ✅")
-        foto2 = st.camera_input("2. FOTO: RÜCKSEITE")
+        st.success("Vorderseite OK! ✅")
+        foto2 = st.camera_input("FOTO 2: RÜCKSEITE")
         
         if foto2:
-            st.success("Rückseite erfasst! ✅")
-            if st.button("MÜNZE JETZT ANALYSIEREN ✨", type="primary"):
-                with st.spinner("KI vergleicht beide Seiten..."):
+            st.success("Rückseite OK! ✅")
+            if st.button("WERT ERMITTELN ✨", type="primary"):
+                with st.spinner("KI berechnet Metall- und Marktwert..."):
                     res_raw = analysiere_muenze(foto1, foto2, zustand)
                     if res_raw:
                         data = json.loads(res_raw)
+                        prices = get_market_prices()
+                        
+                        # Berechnung des reinen Metallwerts
+                        metall = data['metall']
+                        gramm_preis = prices.get(metall, 0)
+                        metallwert = data['gewicht'] * data['reinheit'] * gramm_preis
+                        
                         st.markdown("<div class='result-card'>", unsafe_allow_html=True)
                         st.header(f"{data['name']} ({data['jahr']})")
-                        st.write(f"**Wert:** {data['marktwert_min']}€ - {data['marktwert_max']}€")
-                        st.write(f"**Material:** {data['metall']}")
-                        st.info(data['info'])
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.write("**Börsen-Wert:**")
+                            st.subheader(f"{metallwert:.2f} €")
+                            st.caption(f"(Reiner {metall}wert)")
+                        with col2:
+                            st.write("**Marktwert:**")
+                            st.subheader(f"{data['marktwert_sammler']}")
+                            st.caption("(Sammler-Schätzung)")
+                        
+                        st.write(f"**Handel & Info:** {data['info']}")
                         st.markdown("</div>", unsafe_allow_html=True)
-                        if st.button("In Album speichern"):
+                        
+                        if st.button("✅ In Album speichern"):
                             st.session_state.sammlung.append(data)
                             st.toast("Gespeichert!")
                     else:
-                        st.error("Fehler bei der KI-Verbindung.")
+                        st.error("Fehler bei der Analyse. Bitte nochmal versuchen.")
 
 # SAMMLUNG
 elif st.session_state.page == 'sammlung':
@@ -106,7 +152,9 @@ elif st.session_state.page == 'sammlung':
     st.title("📚 Album")
     for m in st.session_state.sammlung:
         with st.expander(f"{m['name']} ({m['jahr']})"):
-            st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
+            st.write(f"Sammlerwert: {m.get('marktwert_sammler', 'N/A')}")
+            st.write(f"Hintergrund: {m['info']}")
+
 
 
 
