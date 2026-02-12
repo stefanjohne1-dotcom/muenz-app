@@ -134,8 +134,8 @@ elif st.session_state.page == 'scanner':
                 ergebnis = json.loads(ergebnis_raw)
                 
                 st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-                name = ergebnis.get ´name`, (unbekannte Münze`)
-                jahr = ergebnis.get (`jahr`, `- - - `)
+                name = ergebnis.get "name", ("unbekannte Münze")
+                jahr = ergebnis.get ("jahr", "- - - ")
                 st.header(f"{ergebnis['name']} ({ergebnis['jahr']})")
                 
                 c1, c2 = st.columns(2)
@@ -173,4 +173,5 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
