@@ -90,7 +90,7 @@ elif st.session_state.page == 'scanner':
                         st.header(f"{data['name']} ({data['jahr']})")
                         st.write(f"**Wert:** {data['marktwert_min']}€ - {data['marktwert_max']}€")
                         st.write(f"**Material:** {data['metall']}")
-st.info(data['info'])
+                        st.info(data['info'])
                         st.markdown("</div>", unsafe_allow_html=True)
                         if st.button("In Album speichern"):
                             st.session_state.sammlung.append(data)
@@ -107,6 +107,7 @@ elif st.session_state.page == 'sammlung':
     for m in st.session_state.sammlung:
         with st.expander(f"{m['name']} ({m['jahr']})"):
             st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
+
 
 
 
