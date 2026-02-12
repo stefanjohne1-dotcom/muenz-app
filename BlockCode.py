@@ -134,14 +134,22 @@ elif st.session_state.page == 'scanner':
                 ergebnis = json.loads(ergebnis_raw)
                 
                 st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+                name = ergebnis.get ´name`, (unbekannte Münze`)
+                jahr = ergebnis.get (`jahr`, `- - - `)
                 st.header(f"{ergebnis['name']} ({ergebnis['jahr']})")
                 
                 c1, c2 = st.columns(2)
                 c1.metric("Material", f"{ergebnis['metall']}")
                 c2.metric("Marktwert", f"{ergebnis['marktwert_min']}€ - {ergebnis['marktwert_max']}€")
                 
-st.info(f"**Hintergrund:** {ergebnis['info']}")
+                info = ergebnis.get(ìnfo`, `keine weiteren Infos verfügbar.`)
+                st.info(f"**Hintergrund:** {ergebnis['info']}")
                 st.markdown("</div>", unsafe_allow_html=True)
+
+            except Exception as e:
+                st.error (Oje Papa, da hat die Erkennung nicht geklappt.`)
+                st.warning (`Versuch es bitte noch einmal mit etwas mehr Licht`)
+                print(f`Fehler-Log für dich: {e}`)
                 
                 if st.button("✅ Speichern"):
                     st.session_state.sammlung.append(ergebnis)
@@ -165,3 +173,4 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
