@@ -134,7 +134,7 @@ elif st.session_state.page == 'scanner':
                     ergebnis = json.loads(ergebnis_raw)
 
                      # 2. Die Ergebniskarte (Alles hier muss gleich weit eingerückt sein!)
-                     st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+                    st.markdown("<div class='result-card'>", unsafe_allow_html=True)
                 
                      # Wir nutzen .get(), damit die App nicht abstürzt, falls ein Wert fehlt
                      name = ergebnis.get('name', 'Unbekannte Münze')
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
