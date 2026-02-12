@@ -129,9 +129,9 @@ elif st.session_state.page == 'scanner':
          if foto:
              with st.spinner("KI analysiert die Münze..."):
                  try:
-                     # 1. Analyse durchführen
-                     ergebnis_raw = analysiere_muenze(foto, zustand)
-                     ergebnis = json.loads(ergebnis_raw)
+                    # 1. Analyse durchführen
+                    ergebnis_raw = analysiere_muenze(foto, zustand)
+                    ergebnis = json.loads(ergebnis_raw)
 
                      # 2. Die Ergebniskarte (Alles hier muss gleich weit eingerückt sein!)
                      st.markdown("<div class='result-card'>", unsafe_allow_html=True)
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
