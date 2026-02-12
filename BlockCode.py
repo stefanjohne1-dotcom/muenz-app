@@ -85,7 +85,7 @@ def analysiere_muenze(image_file, zustand):
     }
 
 response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-return response.json()['choices'][0]['message']['content']
+    return response.json()['choices'][0]['message']['content']
 
 # --- 3. NAVIGATION ---
 if 'page' not in st.session_state:
@@ -203,6 +203,7 @@ elif st.session_state.page == 'sammlung':
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
