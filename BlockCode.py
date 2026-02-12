@@ -64,7 +64,7 @@ def analysiere_muenze(img1, img2, zustand):
             ],
             "response_format": { "type": "json_object" }
         }
-response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
         return response.json()['choices'][0]['message']['content']
     except:
         return None
@@ -154,6 +154,7 @@ elif st.session_state.page == 'sammlung':
         with st.expander(f"{m['name']} ({m['jahr']})"):
             st.write(f"Sammlerwert: {m.get('marktwert_sammler', 'N/A')}")
             st.write(f"Hintergrund: {m['info']}")
+
 
 
 
