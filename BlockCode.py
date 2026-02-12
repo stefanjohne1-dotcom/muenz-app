@@ -160,7 +160,7 @@ elif st.session_state.page == 'scanner':
                         st.balloons()
                         st.success("Erfolgreich gespeichert!")
 
-                except Exception as e:
+            except Exception as e:
                 # Das ist der "Rettungsschirm", der den Syntaxfehler löst!
                 st.error("Oje Papa, da hat die Erkennung nicht geklappt.")
                 st.warning("Versuch es bitte noch einmal mit mehr Licht!")
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
