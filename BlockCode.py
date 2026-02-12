@@ -137,23 +137,23 @@ elif st.session_state.page == 'scanner':
                     st.markdown("<div class='result-card'>", unsafe_allow_html=True)
                 
                      # Wir nutzen .get(), damit die App nicht abstürzt, falls ein Wert fehlt
-                     name = ergebnis.get('name', 'Unbekannte Münze')
-                     jahr = ergebnis.get('jahr', '---')
-                     st.header(f"{name} ({jahr})")
+                    name = ergebnis.get('name', 'Unbekannte Münze')
+                    jahr = ergebnis.get('jahr', '---')
+                    st.header(f"{name} ({jahr})")
 
                      # Werte in zwei großen Kacheln anzeigen
-                     c1, c2 = st.columns(2)
-                     c1.metric("Material", ergebnis.get('metall', 'Unbekannt'))
+                    c1, c2 = st.columns(2)
+                    c1.metric("Material", ergebnis.get('metall', 'Unbekannt'))
                 
-                     m_min = ergebnis.get('marktwert_min', '0')
-                     m_max = ergebnis.get('marktwert_max', '0')
-                     c2.metric("Marktwert", f"{m_min}€ - {m_max}€")
+                    m_min = ergebnis.get('marktwert_min', '0')
+                    m_max = ergebnis.get('marktwert_max', '0')
+                    c2.metric("Marktwert", f"{m_min}€ - {m_max}€")
 
                      # Die Hintergrund-Informationen (WICHTIG: Hier eingerückt lassen!)
-                     info_text = ergebnis.get('info', 'Keine weiteren Details gefunden.')
-                     st.info(f"**Hintergrund:** {info_text}")
+                    info_text = ergebnis.get('info', 'Keine weiteren Details gefunden.')
+                    st.info(f"**Hintergrund:** {info_text}")
                 
-                     st.markdown("</div>", unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
 
                      # Speicher-Knopf für Papas Schatztruhe
                 if st.button("✅ In Sammlung speichern"):
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
