@@ -181,13 +181,13 @@ elif st.session_state.page == 'scanner':
                      st.warning("Versuch es bitte noch einmal mit etwas mehr Licht!")
                      print(f"Entwickler-Info: {e}")
                 
-                if st.button("✅ Speichern"):
-                    st.session_state.sammlung.append(ergebnis)
-                    st.success("Gespeichert!")
-            except Exception as e:
-                # Das ist der Teil, der gefehlt hat:
-                st.error("Fehler bei der Analyse. Bitte nochmal versuchen.")
-                st.write(e)
+                     if st.button("✅ Speichern"):
+                         st.session_state.sammlung.append(ergebnis)
+                         st.success("Gespeichert!")
+                 except Exception as e:
+                 # Das ist der Teil, der gefehlt hat:
+                     st.error("Fehler bei der Analyse. Bitte nochmal versuchen.")
+                     st.write(e)
 
 # --- SAMMLUNG SEITE ---
 elif st.session_state.page == 'sammlung':
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
