@@ -126,7 +126,7 @@ elif st.session_state.page == 'scanner':
 
     foto = st.camera_input("Foto machen")
 
-         if foto:
+    if foto:
              with st.spinner("KI analysiert die Münze..."):
                  try:
                     # 1. Analyse durchführen
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
