@@ -167,19 +167,19 @@ elif st.session_state.page == 'scanner':
                      print(f"Fehler für den Entwickler: {e}")
 
                 
-                        st.markdown("</div>", unsafe_allow_html=True)
+                     st.markdown("</div>", unsafe_allow_html=True)
 
                 # Speichern Button - nur wenn Erkennung erfolgreich
-                    if st.button("✅ In Schatztruhe speichern"):
+                     if st.button("✅ In Schatztruhe speichern"):
                          # Hier kommt später die Speicher-Logik rein
                          st.balloons()
                          st.success("Gespeichert!")
 
-                    except Exception as e:
+                     except Exception as e:
                     # Der "Rettungsring", falls was schiefgeht
-                        st.error("Oje Papa, da hat die Erkennung nicht geklappt.")
-                        st.warning("Versuch es bitte noch einmal mit etwas mehr Licht!")
-                        print(f"Entwickler-Info: {e}")
+                         st.error("Oje Papa, da hat die Erkennung nicht geklappt.")
+                         st.warning("Versuch es bitte noch einmal mit etwas mehr Licht!")
+                         print(f"Entwickler-Info: {e}")
                 
                 if st.button("✅ Speichern"):
                     st.session_state.sammlung.append(ergebnis)
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
