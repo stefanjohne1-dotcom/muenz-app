@@ -129,27 +129,39 @@ elif st.session_state.page == 'scanner':
     if foto:
         with st.spinner("KI analysiert..."):
             try:
-                # Hier startet der kritische Bereich
-                ergebnis_raw = analysiere_muenze(foto, zustand)
-                ergebnis = json.loads(ergebnis_raw)
-                
-                st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-                name = ergebnis.get "name", ("unbekannte Münze")
-                jahr = ergebnis.get ("jahr", "- - - ")
-                st.header(f"{ergebnis['name']} ({ergebnis['jahr']})")
-                
-                c1, c2 = st.columns(2)
-                c1.metric("Material", f"{ergebnis['metall']}")
-                c2.metric("Marktwert", f"{ergebnis['marktwert_min']}€ - {ergebnis['marktwert_max']}€")
-                
-                info = ergebnis.get(ìnfo`, `keine weiteren Infos verfügbar.`)
-                st.info(f"**Hintergrund:** {ergebnis['info']}")
-                st.markdown("</div>", unsafe_allow_html=True)
+            # 1. Die KI-Analyse
+            ergebnis_raw = analysiere_muenze(foto, zustand)
+            ergebnis = json.loads(ergebnis_raw)
 
-            except Exception as e:
-                st.error (Oje Papa, da hat die Erkennung nicht geklappt.`)
-                st.warning (`Versuch es bitte noch einmal mit etwas mehr Licht`)
-                print(f`Fehler-Log für dich: {e}`)
+            # 2. Die Anzeige-Karte öffnen
+            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+            
+            # Hier haben wir die Sicherheitsabfragen mit richtigen Anführungszeichen
+            name = ergebnis.get('name', 'Unbekannte Münze')
+            jahr = ergebnis.get('jahr', '---')
+            st.header(f"{name} ({jahr})")
+
+            # Spalten für Material und Marktwert
+            c1, c2 = st.columns(2)
+            c1.metric("Material", ergebnis.get('metall', 'Unbekannt'))
+            
+            # Marktwert sicher auslesen
+            m_min = ergebnis.get('marktwert_min', '0')
+            m_max = ergebnis.get('marktwert_max', '0')
+            c2.metric("Marktwert", f"{m_min}€ - {m_max}€")
+
+            # 3. Hintergrund-Info (JETZT RICHTIG EINGERÜCKT)
+            info = ergebnis.get('info', 'Keine weiteren Infos verfügbar.')
+st.info(f"**Hintergrund:** {info}")
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        except Exception as e:
+            # Das fängt Fehler ab, falls die KI mal Schluckauf hat
+            st.error("Oje Papa, da hat die Erkennung nicht geklappt.")
+            st.warning("Versuch es bitte noch einmal mit etwas mehr Licht!")
+            # Nur für dich in der Konsole:
+            print(f"Fehler: {e}")
                 
                 if st.button("✅ Speichern"):
                     st.session_state.sammlung.append(ergebnis)
@@ -173,5 +185,6 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
