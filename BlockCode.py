@@ -25,9 +25,9 @@ def get_live_prices():
     try:
         headers = {"x-access-token": st.secrets["GOLD_API_KEY"], "Content-Type": "application/json"}
         # Goldpreis abfragen
-gold_res = requests.get("https://www.goldapi.io/api/XAU/EUR", headers=headers).json()
+        gold_res = requests.get("https://www.goldapi.io/api/XAU/EUR", headers=headers).json()
         # Silberpreis abfragen
-silber_res = requests.get("https://www.goldapi.io/api/XAG/EUR", headers=headers).json()
+        silber_res = requests.get("https://www.goldapi.io/api/XAG/EUR", headers=headers).json()
         
         return {
             "Gold": round(gold_res['price_gram_24k'], 2),
@@ -153,6 +153,7 @@ elif st.session_state.page == 'sammlung':
     for m in st.session_state.sammlung:
         with st.expander(f"{m['name']} ({m['jahr']}) - {m['marktwert_sammler']}"):
             st.write(f"Material: {m['metall']} | Info: {m['geschichte']}")
+
 
 
 
