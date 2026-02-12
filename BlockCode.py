@@ -197,12 +197,13 @@ elif st.session_state.page == 'sammlung':
     
     st.title("📚 Deine Sammlung")
     if not st.session_state.sammlung:
-st.info("Noch leer.")
+        st.info("Noch leer.")
     else:
         for m in st.session_state.sammlung:
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
