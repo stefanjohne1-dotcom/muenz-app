@@ -126,22 +126,22 @@ elif st.session_state.page == 'scanner':
 
     foto = st.camera_input("Foto machen")
 
-    if foto:
-        with st.spinner("KI analysiert..."):
+       if foto:
+        with st.spinner("KI analysiert die Münze..."):
             try:
-                # 1. Analyse starten (Alles hier muss eingerückt sein!)
+                # 1. Analyse durchführen
                 ergebnis_raw = analysiere_muenze(foto, zustand)
                 ergebnis = json.loads(ergebnis_raw)
 
-                # 2. Anzeige-Karte für Papa
+                # 2. Die schicke Ergebniskarte (Alles hier muss eingerückt sein!)
                 st.markdown("<div class='result-card'>", unsafe_allow_html=True)
                 
-                # Sicherheitsabfrage mit RICHTIGEN Anführungszeichen ' '
+                # Sicherheitsabfrage: Wenn die KI ein Feld vergisst, wird '---' angezeigt
                 name = ergebnis.get('name', 'Unbekannte Münze')
                 jahr = ergebnis.get('jahr', '---')
                 st.header(f"{name} ({jahr})")
 
-                # Zwei große Kacheln für die Werte
+                # Werte in zwei großen Kacheln anzeigen
                 c1, c2 = st.columns(2)
                 c1.metric("Material", ergebnis.get('metall', 'Unbekannt'))
                 
@@ -149,9 +149,22 @@ elif st.session_state.page == 'scanner':
                 m_max = ergebnis.get('marktwert_max', '0')
                 c2.metric("Marktwert", f"{m_min}€ - {m_max}€")
 
-                # Die Hintergrund-Infos
-                info = ergebnis.get('info', 'Keine weiteren Infos verfügbar.')
+                # Die Hintergrund-Informationen
+                info = ergebnis.get('info', 'Keine weiteren Details gefunden.')
 st.info(f"**Hintergrund:** {info}")
+                
+                st.markdown("</div>", unsafe_allow_html=True)
+
+                # Speicher-Knopf für Papas Schatztruhe
+                if st.button("✅ In Sammlung speichern"):
+                    st.balloons()
+                    st.success("Erfolgreich gespeichert!")
+
+            except Exception as e:
+                # Das ist der Rettungsschirm, der den Syntaxfehler löst!
+                st.error("Oje Papa, da hat die Erkennung nicht geklappt.")
+                st.warning("Versuch es bitte noch einmal mit mehr Licht und ohne Schatten!")
+                print(f"Fehler-Log: {e}")
                 
                 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -189,6 +202,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
