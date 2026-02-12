@@ -156,7 +156,7 @@ elif st.session_state.page == 'scanner':
                     st.markdown("</div>", unsafe_allow_html=True)
 
                      # Speicher-Knopf für Papas Schatztruhe
-                if  st.button("✅ In Sammlung speichern"):
+                if  st.button("✅ In Sammlung speichern")
                     st.balloons()
                     st.success("Erfolgreich gespeichert!")
 
@@ -203,6 +203,7 @@ st.info("Noch leer.")
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
+
 
 
 
