@@ -8,7 +8,6 @@ st.set_page_config(page_title="Papas Münz-Experte", layout="centered")
 
 st.markdown("""
     <style>
-    /* Große Kacheln */
     div.stButton > button {
         width: 100%;
         height: 140px;
@@ -19,7 +18,6 @@ st.markdown("""
         border: none;
         box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     }
-    /* Farben */
     .stButton > button[kind="primary"] { background-color: #28a745 !important; color: white !important; }
     .stButton > button[kind="secondary"] { background-color: #007bff !important; color: white !important; }
     
@@ -31,6 +29,7 @@ st.markdown("""
         font-weight: bold;
         font-size: 20px;
         border: 2px solid #e0a800;
+        color: #333;
     }
     .result-card {
         background-color: #f8f9fa;
@@ -38,6 +37,7 @@ st.markdown("""
         border-radius: 15px;
         border-left: 10px solid #ffd700;
         margin-top: 20px;
+        color: #333;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -62,14 +62,12 @@ def analysiere_muenze(image_file, zustand):
       "name": "Vollständiger Name der Münze",
       "jahr": "Prägejahr",
       "metall": "Gold, Silber oder Unedel",
-      "reinheit": 0.900 (als Dezimalzahl),
-      "gewicht": 7.96 (in Gramm),
-      "metallwert": 0.00 (geschätzt),
+      "reinheit": 0.900,
+      "gewicht": 7.96,
       "marktwert_min": 0,
       "marktwert_max": 0,
       "info": "Ein Satz zur Geschichte"
     }}
-    Berücksichtige den Zustand '{zustand}' bei der Marktwert-Schätzung.
     """
 
     payload = {
@@ -89,13 +87,13 @@ def analysiere_muenze(image_file, zustand):
 response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 return response.json()['choices'][0]['message']['content']
 
-# --- 3. NAVIGATION & SPEICHER ---
+# --- 3. NAVIGATION ---
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
 if 'sammlung' not in st.session_state:
     st.session_state.sammlung = []
 
-# --- SEITE: HAUPTMENÜ ---
+# --- HAUPTMENÜ ---
 if st.session_state.page == 'home':
     st.markdown("<h1 style='text-align: center;'>🪙 PAPAS MÜNZ-APP</h1>", unsafe_allow_html=True)
     
@@ -114,7 +112,7 @@ if st.session_state.page == 'home':
         </div>
     """, unsafe_allow_html=True)
 
-# --- SEITE: SCANNER ---
+# --- SCANNER SEITE ---
 elif st.session_state.page == 'scanner':
     if st.button("⬅️ ZURÜCK"):
         st.session_state.page = 'home'
@@ -122,54 +120,48 @@ elif st.session_state.page == 'scanner':
 
     st.subheader("1. Zustand wählen")
     zustand = st.select_slider(
-        "Wie gut ist die Münze erhalten?",
-        options=["Stark abgenutzt", "Schön", "Vorzüglich", "Stempelglanz (wie neu)"]
+        "Zustand der Münze:",
+        options=["Stark abgenutzt", "Schön", "Vorzüglich", "Stempelglanz"]
     )
 
-    st.subheader("2. Foto machen")
-    foto = st.camera_input("Kamera starten")
+    foto = st.camera_input("Foto machen")
 
     if foto:
-        with st.spinner("KI berechnet Marktwert..."):
+        with st.spinner("KI analysiert..."):
             try:
-                ergebnis = json.loads(analysiere_muenze(foto, zustand))
+                # Hier startet der kritische Bereich
+                ergebnis_raw = analysiere_muenze(foto, zustand)
+                ergebnis = json.loads(ergebnis_raw)
                 
                 st.markdown("<div class='result-card'>", unsafe_allow_html=True)
                 st.header(f"{ergebnis['name']} ({ergebnis['jahr']})")
                 
                 c1, c2 = st.columns(2)
                 c1.metric("Material", f"{ergebnis['metall']}")
-                c1.write(f"Gewicht: {ergebnis['gewicht']}g")
-                
-                # Berechnung Metallwert (vereinfacht für App)
-                preis_g = 73.0 if ergebnis['metall'] == "Gold" else 0.90
-                if ergebnis['metall'] == "Unedel": preis_g = 0
-                echter_metallwert = ergebnis['gewicht'] * ergebnis['reinheit'] * preis_g
-                
-                c2.metric("Sammler-Marktwert", f"{ergebnis['marktwert_min']}€ - {ergebnis['marktwert_max']}€")
-                c2.write(f"Metallwert: ca. {echter_metallwert:.2f}€")
+                c2.metric("Marktwert", f"{ergebnis['marktwert_min']}€ - {ergebnis['marktwert_max']}€")
                 
 st.info(f"**Hintergrund:** {ergebnis['info']}")
                 st.markdown("</div>", unsafe_allow_html=True)
                 
-                if st.button("✅ In Sammlung speichern"):
+                if st.button("✅ Speichern"):
                     st.session_state.sammlung.append(ergebnis)
                     st.success("Gespeichert!")
-            except:
-                st.error("Hoppla! Die KI konnte das Bild nicht auswerten. Probier es nochmal heller.")
+            except Exception as e:
+                # Das ist der Teil, der gefehlt hat:
+                st.error("Fehler bei der Analyse. Bitte nochmal versuchen.")
+                st.write(e)
 
-# --- SEITE: SAMMLUNG ---
+# --- SAMMLUNG SEITE ---
 elif st.session_state.page == 'sammlung':
     if st.button("⬅️ ZURÜCK"):
         st.session_state.page = 'home'
         st.rerun()
     
-    st.title("📚 Deine Schätze")
+    st.title("📚 Deine Sammlung")
     if not st.session_state.sammlung:
-st.info("Noch keine Münzen im Album.")
+st.info("Noch leer.")
     else:
         for m in st.session_state.sammlung:
             with st.expander(f"{m['name']} ({m['jahr']})"):
-                st.write(f"Material: {m['metall']} | Marktwert: {m['marktwert_min']}-{m['marktwert_max']}€")
+                st.write(f"Wert: {m['marktwert_min']}-{m['marktwert_max']}€")
                 st.write(f"Info: {m['info']}")
-
