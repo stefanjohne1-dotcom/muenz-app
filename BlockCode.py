@@ -104,10 +104,10 @@ elif st.session_state.page == 'scanner':
                     data = json.loads(d)
                     
                     # IN SUPABASE SPEICHERN
-                        client = init_supabase()
-                        client.table("muenzen").insert({
-                        "name": data['name'], "jahr": str(data['jahr']),
-                        "land": data['land'], "marktwert": data['marktwert']
+                    client = init_supabase()
+                    client.table("muenzen").insert({
+                    "name": data['name'], "jahr": str(data['jahr']),
+                    "land": data['land'], "marktwert": data['marktwert']
                     }).execute()
                     
                     st.balloons()
@@ -137,5 +137,6 @@ elif st.session_state.page == 'sammlung':
                 st.caption(f"Gescannt am: {m['created_at'][:10]}")
     except:
         st.error("Datenbank-Verbindung fehlgeschlagen.")
+
 
 
