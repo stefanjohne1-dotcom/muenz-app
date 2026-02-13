@@ -23,8 +23,8 @@ def get_live_prices():
         return {"Gold": 73.50, "Silber": 0.92} # Fallback-Werte
     try:
         headers = {"x-access-token": st.secrets["GOLD_API_KEY"], "Content-Type": "application/json"}
-g = requests.get("https://www.goldapi.io/api/XAU/EUR", headers=headers).json()['price_gram_24k']
-s = requests.get("https://www.goldapi.io/api/XAG/EUR", headers=headers).json()['price_gram_24k']
+        g = requests.get("https://www.goldapi.io/api/XAU/EUR", headers=headers).json()['price_gram_24k']
+        s = requests.get("https://www.goldapi.io/api/XAG/EUR", headers=headers).json()['price_gram_24k']
         return {"Gold": round(g, 2), "Silber": round(s, 2)}
     except:
         return {"Gold": 73.50, "Silber": 0.92}
@@ -161,3 +161,4 @@ elif st.session_state.page == 'sammlung':
         with st.expander(f"{m['name']} ({m['jahr']})"):
             st.write(f"Wert: {m['marktwert']} | Land: {m['land']}")
             st.caption(f"Datum: {m['created_at'][:10]}")
+
