@@ -99,9 +99,9 @@ elif st.session_state.page == 'scanner':
                         ]}],
                         "response_format": { "type": "json_object" }
                     }
-                         res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-                         d = res.json()['choices'][0]['message']['content']
-                         data = json.loads(d)
+                    res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+                    d = res.json()['choices'][0]['message']['content']
+                    data = json.loads(d)
                     
                     # IN SUPABASE SPEICHERN
                         client = init_supabase()
@@ -137,4 +137,5 @@ elif st.session_state.page == 'sammlung':
                 st.caption(f"Gescannt am: {m['created_at'][:10]}")
     except:
         st.error("Datenbank-Verbindung fehlgeschlagen.")
+
 
