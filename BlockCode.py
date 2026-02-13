@@ -143,11 +143,12 @@ elif st.session_state.page == 'sammlung':
         client = init_supabase()
         res = client.table("muenzen").select("*").order("created_at", desc=True).execute()
         if not res.data:
-        st.info("Noch keine Schätze gespeichert.")
+               st.info("Noch keine Schätze gespeichert.")
         for m in res.data:
             with st.expander(f"{m['name']} ({m['jahr']})"):
                 st.write(f"**Wert:** {m['marktwert']} | **Land:** {m['land']}")
                 st.caption(f"Datum: {m['created_at'][:10]}")
     except Exception as e:
         st.error(f"Datenbank-Fehler: {e}")
+
 
