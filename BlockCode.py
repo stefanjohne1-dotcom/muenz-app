@@ -54,7 +54,7 @@ def analysiere_muenze_profi(img1_bytes, img2_bytes, zustand):
         ]}],
         "response_format": { "type": "json_object" }
     }
-res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     return res.json()['choices'][0]['message']['content']
 
 # --- 4. APP SETUP ---
@@ -129,3 +129,4 @@ elif st.session_state.page == 'sammlung':
                     client.table("muenzen").delete().eq("id", m['id']).execute()
                     st.rerun()
     except Exception as e: st.error(f"Datenbank-Fehler: {e}")
+
