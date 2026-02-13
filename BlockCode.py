@@ -56,14 +56,14 @@ if 'page' not in st.session_state: st.session_state.page = 'home'
 if st.session_state.page == 'home':
     st.title("🪙 PAPAS MÜNZ-APP")
     p = get_live_prices()
-st.info(f"Gold: {p['Gold']}€/g | Silber: {p["Silber"]}€/g")
+    st.info(f"Gold: {p['Gold']}€/g | Silber: {p["Silber"]}€/g")
     
-    if  st.button("📸 NEUE MÜNZE SCANNEN", type="primary"):
-        st.session_state.page = 'scanner'
-        st.rerun()
-    if  st.button("📚 SAMMLUNG ANSEHEN"):
-        st.session_state.page = 'sammlung'
-        st.rerun()
+if  st.button("📸 NEUE MÜNZE SCANNEN", type="primary"):
+    st.session_state.page = 'scanner'
+    st.rerun()
+if  st.button("📚 SAMMLUNG ANSEHEN"):
+    st.session_state.page = 'sammlung'
+    st.rerun()
 
 elif st.session_state.page == 'scanner':
     if st.button("⬅️ ZURÜCK"):
@@ -116,4 +116,5 @@ elif st.session_state.page == 'sammlung':
                 st.write(f"Wert: {m['marktwert']} | Land: {m['land']}")
     except:
         st.write("Noch keine Münzen gespeichert.")
+
 
