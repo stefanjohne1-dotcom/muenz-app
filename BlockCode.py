@@ -109,7 +109,7 @@ elif st.session_state.page == 'scanner':
                 except Exception as e:
                     st.error(f"Fehler: {e}")
     else:
-st.info("Bitte lade erst beide Fotos hoch, um die Analyse zu starten.")
+        st.info("Bitte lade erst beide Fotos hoch, um die Analyse zu starten.")
 
 # SAMMLUNG-SEITE
 elif st.session_state.page == 'sammlung':
@@ -127,5 +127,6 @@ st.info("Noch keine Schätze gespeichert.")
                 st.write(f"Wert: {m['marktwert']} | Land: {m['land']}")
     except Exception as e:
         st.error(f"Datenbank-Fehler: {e}")
+
 
 
