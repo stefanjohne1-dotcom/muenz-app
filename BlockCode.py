@@ -61,13 +61,13 @@ if st.session_state.page == 'home':
     st.markdown(f"""<div style="background:#ffc107;padding:20px;border-radius:15px;text-align:center;font-weight:bold;color:#333;border:2px solid #e0a800;">
         AKTUELL: Gold {p['Gold']}€/g | Silber {p['Silber']}€/g</div>""", unsafe_allow_html=True)
     
-       st.write(" ")
-    if st.button("📸 NEUE MÜNZE SCANNEN", type="primary"):
-       st.session_state.page = 'scanner'
-       st.rerun()
-    if  st.button("📚 SAMMLUNG ANSEHEN"):
-        st.session_state.page = 'sammlung'
-        st.rerun()
+    st.write(" ")
+if  st.button("📸 NEUE MÜNZE SCANNEN", type="primary"):
+    st.session_state.page = 'scanner'
+    st.rerun()
+if  st.button("📚 SAMMLUNG ANSEHEN"):
+    st.session_state.page = 'sammlung'
+    st.rerun()
 
 # --- SEITE: SCANNER ---
 elif st.session_state.page == 'scanner':
@@ -150,3 +150,4 @@ elif st.session_state.page == 'sammlung':
                 st.caption(f"Datum: {m['created_at'][:10]}")
     except Exception as e:
         st.error(f"Datenbank-Fehler: {e}")
+
