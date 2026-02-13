@@ -15,8 +15,8 @@ def get_live_prices():
     if "GOLD_API_KEY" not in st.secrets: return {"Gold": 73.50, "Silber": 0.92}
     try:
         headers = {"x-access-token": st.secrets["GOLD_API_KEY"]}
-g = requests.get("https://www.goldapi.io/api/XAU/EUR", headers=headers).json()['price_gram_24k']
-s = requests.get("https://www.goldapi.io/api/XAG/EUR", headers=headers).json()['price_gram_24k']
+        g = requests.get("https://www.goldapi.io/api/XAU/EUR", headers=headers).json()['price_gram_24k']
+        s = requests.get("https://www.goldapi.io/api/XAG/EUR", headers=headers).json()['price_gram_24k']
         return {"Gold": round(g, 2), "Silber": round(s, 2)}
     except: return {"Gold": 73.50, "Silber": 0.92}
 
@@ -128,3 +128,4 @@ st.info("Noch keine Schätze gespeichert.")
                 st.write(f"Wert: {m['marktwert']} | Land: {m['land']}")
     except Exception as e:
         st.error(f"Datenbank-Fehler: {e}")
+
