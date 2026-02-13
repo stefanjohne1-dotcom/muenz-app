@@ -120,23 +120,32 @@ elif st.session_state.page == 'scanner':
                 except Exception as e:
                     st.error(f"Fehler: {e}")
 
-# --- SAMMLUNG-SEITE ---
+# --- SAMMLUNG-SEITE (MIT LÖSCH-FUNKTION) ---
 elif st.session_state.page == 'sammlung':
     if st.button("⬅️ ZURÜCK"):
         st.session_state.page = 'home'
         st.rerun()
-        st.title("📚 Die Sammlung")
+    
+    st.title("📚 Deine Schätze")
     try:
         client = init_supabase()
         res = client.table("muenzen").select("*").order("created_at", desc=True).execute()
+        
         if not res.data:
                st.info("Noch keine Schätze gespeichert.")
+        
         for m in res.data:
-            with st.expander(f"{m['name']} ({m['jahr']})"):
-                st.write(f"Wert: {m['marktwert']} | Land: {m['land']}")
-                st.caption(f"Gescannt am: {m['created_at'][:10]}")
-    except:
-        st.error("Datenbank-Verbindung fehlgeschlagen.")
+            # Ein schmaler Kasten für jede Münze
+            with st.expander(f"🪙 {m['name']} ({m['jahr']})"):
+                st.write(f"**Wert:** {m['marktwert']} | **Land:** {m['land']}")
+                
+                # Der Lösch-Knopf für jeden Eintrag
+                if st.button(f"🗑️ Eintrag löschen", key=f"del_{m['id']}"):
+                    client.table("muenzen").delete().eq("id", m['id']).execute()
+                    st.success("Gelöscht!")
+                    st.rerun() # Seite neu laden, damit der Eintrag verschwindet
+    except Exception as e:
+        st.error(f"Datenbank-Fehler: {e}")
 
 
 
