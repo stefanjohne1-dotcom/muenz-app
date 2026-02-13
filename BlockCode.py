@@ -57,8 +57,7 @@ if st.session_state.page == 'home':
     p = get_live_prices()
     st.markdown(f"""<div style="background:#ffc107;padding:20px;border-radius:15px;text-align:center;font-weight:bold;color:#333;">
         AKTUELL: Gold {p['Gold']}€/g | Silber {p['Silber']}€/g</div>""", unsafe_allow_html=True)
-    
-   st.write(" ")
+    st.write(" ")
 if st.button("📸 NEUE MÜNZE SCANNEN", type="primary"):
     st.session_state.page = 'scanner'
     st.rerun()
@@ -128,4 +127,5 @@ st.info("Noch keine Schätze gespeichert.")
                 st.write(f"Wert: {m['marktwert']} | Land: {m['land']}")
     except Exception as e:
         st.error(f"Datenbank-Fehler: {e}")
+
 
