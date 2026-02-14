@@ -15,7 +15,7 @@ if 'analysis_result' not in st.session_state: st.session_state.analysis_result =
 # --- 2. PREISE (LIVE & ALLE METALLE) ---
 def get_live_prices():
     p = {
-        "Gold": 135.9, "Silber": 1.59, "Kupfer": 0.009, 
+        "Gold": 135.9, "Silber": 1.6, "Kupfer": 0.009, 
         "Nickel": 0.015, "Messing": 0.006, "Zink": 0.003,
         "Stahl": 0.001, "Eisen": 0.001, "source": "Schätzwerte"
     }
@@ -187,5 +187,6 @@ elif st.session_state.page == 'sammlung':
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
         else: st.info("Archiv ist noch leer.")
     except Exception as e: st.error(f"Fehler: {e}")
+
 
 
