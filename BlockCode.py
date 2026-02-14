@@ -51,19 +51,40 @@ def optimiere(file):
 def analysiere_ki(f1, f2, zustand):
     b1 = base64.b64encode(f1).decode(); b2 = base64.b64encode(f2).decode()
     headers = {"Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}"}
-    prompt = f"""Identifiziere diese Münze präzise. Zustand: {zustand}. Antworte NUR als JSON:
-    {{'name': '...', 'jahr': '...', 'land': '...', 'metall': 'Gold/Silber/Kupfer/Nickel/Messing/Zink/Stahl/Eisen', 
-    'reinheit': 0.9, 'gewicht': 15.55, 'groesse': '28mm', 'auflage': '100.000', 'marktwert_num': 850.0, 
-    'besonderheiten': '...', 'info': '...'}}"""
+    
+    # Der verbesserte Befehl für die KI:
+    prompt = f"""
+    Identifiziere diese Münze als numismatischer Experte und Bullion-Handel Experte. Zustand: {zustand}.
+    Erstelle eine ausführliche Analyse.
+    Antworte NUR als JSON-Objekt mit diesen Feldern:
+    {{
+      "name": "Vollständiger Name der Münze",
+      "jahr": "Prägejahr",
+      "land": "Herkunftsland",
+      "metall": "Gold/Silber/Kupfer/Nickel/Messing/Zink/Stahl/Eisen", 
+      "reinheit": 0.9, 
+      "gewicht": 15.55,
+      "metallwert_num": 850.0,
+      "groesse": "Durchmesser in mm", 
+      "auflage": "Genaue Auflagenzahl oder fundierte Schätzung", 
+      "marktwert_num": 850.0, 
+      "besonderheiten": "Detaillierte Merkmale, Varianten oder Prägestätten", 
+      "info": "Ausführlicher historischer Hintergrund Fehlprägungen, Fälschungen und Bedeutung für Sammler (3-4 Sätze)"
+    }}
+    """
     
     payload = {
-        "model": "gpt-4o-mini", "messages": [{"role": "user", "content": [{"type": "text", "text": prompt},
-        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b1}"}},
-        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b2}"}}]}],
+        "model": "gpt-4o-mini", 
+        "messages": [{"role": "user", "content": [
+            {"type": "text", "text": prompt},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b1}"}},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b2}"}}
+        ]}],
         "response_format": { "type": "json_object" }
     }
     res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     return res.json()['choices'][0]['message']['content']
+
 
 # --- 4. APP DESIGN ---
 st.set_page_config(page_title="Papas Münz-App", layout="centered")
@@ -203,5 +224,6 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
