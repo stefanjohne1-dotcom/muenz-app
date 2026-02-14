@@ -188,3 +188,4 @@ elif st.session_state.page == 'sammlung':
         else: st.info("Archiv ist noch leer.")
     except Exception as e: st.error(f"Fehler: {e}")
 
+
