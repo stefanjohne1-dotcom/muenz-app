@@ -72,7 +72,7 @@ st.set_page_config(page_title="Papas Münz-App", layout="centered")
 if st.session_state.page == 'home':
     st.markdown("""
         <div style="background-color: #ffd700; padding: 10px; border-radius: 10px; text-align: center;">
-            <h1 style="color: #333; margin: 0;">🪙 PAPAS MÜNZ-ARCHIV</h1>
+            <h1 style="color: #333; margin: 0;">PAPAS MÜNZ-App</h1>
         </div><br>
     """, unsafe_allow_html=True)
     
@@ -203,3 +203,4 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
