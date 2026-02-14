@@ -97,29 +97,78 @@ if st.session_state.page == 'home':
         if st.button("📚 SAMMLUNG"):
             st.session_state.page = 'sammlung'; st.rerun()
 
-# --- SCANNER ---
+# --- SCANNER-SEITE ---
 elif st.session_state.page == 'scanner':
-    if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
-    zst = st.select_slider("Zustand:", options=["Gebraucht", "Normal", "Sehr gut", "Neuwertig"])
-    f1 = st.file_uploader("1. Vorderseite", type=["jpg","jpeg","png"])
-    f2 = st.file_uploader("2. Rückseite", type=["jpg","jpeg","png"])
+    if st.button("⬅️ ZURÜCK"):
+       st.session_state.page = 'home'
+       st.rerun()
     
-    if f1 and f2:
-        if st.button("ANALYSE STARTEN ✨", type="primary"):
-            with st.spinner("Experte prüft..."):
+    st.subheader("1. Zustand wählen")
+    zustand = st.select_slider("Wie ist die Erhaltung?", options=["Gebraucht", "Normal", "Sehr gut", "Neuwertig"])
+    
+    st.subheader("2. Fotos aufnehmen")
+    
+    # Foto 1: Vorderseite
+    u1 = st.file_uploader("📸 VORDERSEITE aufnehmen", type=["jpg", "jpeg", "png"], key="cam1")
+    if u1 is not None:
+        st.session_state.foto1_data = optimiere_bild(u1)
+        st.success("Vorderseite erfolgreich hochgeladen! ✅")
+
+    # Foto 2: Rückseite (wird immer angezeigt, damit das Handy nicht neu laden muss)
+    u2 = st.file_uploader("📸 RÜCKSEITE aufnehmen", type=["jpg", "jpeg", "png"], key="cam2")
+    if u2 is not None:
+        st.session_state.foto2_data = optimiere_bild(u2)
+        st.success("Rückseite erfolgreich hochgeladen! ✅")
+
+    # Analyse-Knopf erscheint nur, wenn BEIDE Fotos im Speicher sind
+    if st.session_state.foto1_data and st.session_state.foto2_data:
+        st.divider()
+        if st.button("ANALYSE JETZT STARTEN ✨", type="primary"):
+            with st.spinner("KI-Experte analysiert die Bilder..."):
                 try:
-                    res = json.loads(analysiere_muenze_profi(optimiere_bild(f1), optimiere_bild(f2), zst))
+                    # KI Analyse aufrufen
+                    res_raw = analysiere_muenze_profi(st.session_state.foto1_data, st.session_state.foto2_data, zustand)
+                    res = json.loads(res_raw)
+                    
+                    # Preise abrufen (Yahoo Finance Logik)
+                    p = get_live_prices()
+                    kurs = p.get(res['metall'], 0.001)
+                    
+                    # Materialwert berechnen: Bruttogewicht * Reinheit * Kurs
+                    m_wert = float(res['gewicht']) * float(res['reinheit']) * kurs
+                    
+                    # In Supabase speichern
                     client = init_supabase()
                     client.table("muenzen").insert({
-                        "name": res['name'], "jahr": str(res['jahr']), "land": res['land'],
-                        "metall": res['metall'], "reinheit": res['reinheit'], 
-                        "gewicht": res['gewicht'], "groesse": res['groesse'], 
-                        "auflage": res['auflage'], "marktwert_num": res['marktwert_num'],
-                        "besonderheiten": res['besonderheiten'], "info": res['info']
+                        "name": res['name'], 
+                        "jahr": str(res['jahr']), 
+                        "land": res['land'],
+                        "metall": res['metall'], 
+                        "reinheit": res['reinheit'], 
+                        "gewicht": res['gewicht'], 
+                        "groesse": res['groesse'], 
+                        "auflage": res['auflage'], 
+                        "marktwert_num": float(res['marktwert_num']),
+                        "besonderheiten": res['besonderheiten'], 
+                        "info": res['info']
                     }).execute()
+                    
                     st.balloons()
-                    st.success(f"Erfolgreich: {res['name']}")
-                except Exception as e: st.error(f"Fehler: {e}")
+                    st.success(f"Erfolgreich erkannt: {res['name']}")
+                    
+                    # Ergebnis-Vorschau
+                    st.markdown(f"""
+                    <div style="background:white; padding:20px; border-radius:15px; border-left:10px solid #ffd700; color:#333; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
+                        <h3>{res['name']} ({res['jahr']})</h3>
+                        <p><b>Materialwert:</b> {m_wert:.2f}€ | <b>Handelswert:</b> {res['marktwert_num']:.2f}€</p>
+                        <p><i>{res['info']}</i></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                except Exception as e:
+                    st.error(f"Fehler bei der Verarbeitung: {e}")
+    else:
+st.info("Bitte nimm erst beide Fotos auf, um die Analyse zu starten.")
 
 # --- SAMMLUNG ---
 elif   st.session_state.page == 'sammlung':
@@ -175,6 +224,7 @@ elif   st.session_state.page == 'sammlung':
         else:
             st.info("Noch keine Münzen gespeichert.")
     except Exception as e: st.error(f"Fehler: {e}")
+
 
 
 
