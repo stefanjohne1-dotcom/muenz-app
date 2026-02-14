@@ -16,15 +16,15 @@ if 'analysis_result' not in st.session_state: st.session_state.analysis_result =
 # --- 2. PREISE (LIVE & FALLBACK) ---
 def get_live_prices():
     p = {
-        "Gold": 75.10, "Silber": 0.95, "Kupfer": 0.009, 
-        "Nickel": 0.016, "Messing": 0.006, "Zink": 0.003,
+        "Gold": 135.9, "Silber": 1.6, "Kupfer": 0.009, 
+        "Nickel": 0.015, "Messing": 0.006, "Zink": 0.003,
         "Stahl": 0.001, "Eisen": 0.001, "source": "Schätzwerte"
     }
     try:
         h = {'User-Agent': 'Mozilla/5.0'}
-res_g = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAU-EUR=X", headers=h, timeout=5).json()
+        res_g = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAU-EUR=X", headers=h, timeout=5).json()
         p["Gold"] = round(res_g['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
-res_s = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAG-EUR=X", headers=h, timeout=5).json()
+        res_s = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAG-EUR=X", headers=h, timeout=5).json()
         p["Silber"] = round(res_s['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
         p["source"] = "Live-Kurse 📈"
     except: pass
@@ -58,7 +58,7 @@ def analysiere_ki(f1, f2, zustand):
         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b2}"}}]}],
         "response_format": { "type": "json_object" }
     }
-res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     return res.json()['choices'][0]['message']['content']
 
 # --- 4. NAVIGATION ---
@@ -154,5 +154,6 @@ elif st.session_state.page == 'sammlung':
                     st.write(f"Handelswert: {m['marktwert_num']}€")
                     if st.button("🗑️ Löschen", key=f"del_{m['id']}"):
                         init_supabase().table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
-else: st.info("Archiv leer.")
+        else: st.info("Archiv leer.")
     except Exception as e: st.error(f"Fehler: {e}")
+
