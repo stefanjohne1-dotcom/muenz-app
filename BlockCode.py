@@ -168,7 +168,7 @@ elif st.session_state.page == 'scanner':
                 except Exception as e:
                     st.error(f"Fehler bei der Verarbeitung: {e}")
     else:
-st.info("Bitte nimm erst beide Fotos auf, um die Analyse zu starten.")
+    st.info("Bitte nimm erst beide Fotos auf, um die Analyse zu starten.")
 
 # --- SAMMLUNG ---
 elif   st.session_state.page == 'sammlung':
@@ -224,6 +224,7 @@ elif   st.session_state.page == 'sammlung':
         else:
             st.info("Noch keine Münzen gespeichert.")
     except Exception as e: st.error(f"Fehler: {e}")
+
 
 
 
