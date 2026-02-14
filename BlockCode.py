@@ -16,7 +16,7 @@ if 'analysis_result' not in st.session_state: st.session_state.analysis_result =
 def get_live_prices():
     p = {
         "Gold": 135.9, "Silber": 1.6, "Kupfer": 0.009, 
-        "Nickel": 0.016, "Messing": 0.006, "Zink": 0.003,
+        "Nickel": 0.015, "Messing": 0.006, "Zink": 0.003,
         "Stahl": 0.001, "Eisen": 0.001, "source": "Schätzwerte"
     }
     try:
@@ -47,7 +47,7 @@ def analysiere_ki(f1, f2, zustand):
     headers = {"Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}"}
     prompt = f"""Identifiziere diese Münze präzise. Zustand: {zustand}. Antworte NUR als JSON:
     {{'name': '...', 'jahr': '...', 'land': '...', 'metall': 'Gold/Silber/Kupfer/Nickel/Messing/Zink/Stahl/Eisen', 
-    'reinheit': 0.9, 'gewicht': 15.55, 'groesse': '28mm', 'auflage': '100.000', 'marktwert_num': 850.0, 
+    'reinheit': '...', 'gewicht': '...', 'groesse': '...', 'auflage': '...', 'marktwert_num': '...', 
     'besonderheiten': '...', 'info': '...'}}"""
     
     payload = {
@@ -173,4 +173,3 @@ elif st.session_state.page == 'sammlung':
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
         else: st.info("Archiv ist noch leer.")
     except Exception as e: st.error(f"Datenbankfehler: {e}")
-
