@@ -81,7 +81,7 @@ if st.session_state.page == 'home':
    st.markdown(f"""<div style="background:#ffc107;padding:15px;border-radius:15px;text-align:center;font-weight:bold;color:#333;border:2px solid #e0a800;">
         {p['source']}<br>Gold: {p['Gold']}€/g | Silber: {p['Silber']}€/g</div>""", unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+   col1, col2 = st.columns(2)
     with col1:
         if st.button("📸 SCANNER", type="primary"):
             st.session_state.page = 'scanner'
@@ -179,3 +179,4 @@ elif st.session_state.page == 'sammlung':
         st.info("Noch keine Münzen im Archiv.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
