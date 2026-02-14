@@ -171,5 +171,6 @@ elif st.session_state.page == 'sammlung':
                     st.write(f"Material: {((m['gewicht'] or 0)*(m['reinheit'] or 0)*p.get(m['metall'], 0)):.2f}€ | Handel: {m['marktwert_num']}€")
                     if st.button("🗑️ Löschen", key=f"del_{m['id']}"):
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
-    else: st.info("Archiv ist noch leer.")
+        else: st.info("Archiv ist noch leer.")
     except Exception as e: st.error(f"Datenbankfehler: {e}")
+
