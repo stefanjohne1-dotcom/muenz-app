@@ -123,8 +123,8 @@ elif st.session_state.page == 'scanner':
 
 # --- SAMMLUNG ---
 elif st.session_state.page == 'sammlung':
-    if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
-       st.title("📚 Deine Sammlung")
+if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
+   st.title("📚 Deine Sammlung")
     
        p = get_live_prices()
     try:
@@ -175,4 +175,5 @@ elif st.session_state.page == 'sammlung':
         else:
 st.info("Noch keine Münzen gespeichert.")
     except Exception as e: st.error(f"Fehler: {e}")
+
 
