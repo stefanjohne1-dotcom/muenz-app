@@ -136,6 +136,7 @@ elif st.session_state.page == 'sammlung':
                     if st.button("🗑️ Löschen", key=f"del_{m['id']}"):
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
 else: st.info("Archiv ist noch leer.")
-    except Exception as e: st.error(f"Datenbankfehler: {e}")
+except Exception as e: st.error(f"Datenbankfehler: {e}")
+
 
 
