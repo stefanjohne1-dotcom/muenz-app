@@ -86,7 +86,7 @@ if st.session_state.page == 'home':
         if st.button("📸 SCANNER", type="primary"):
             st.session_state.page = 'scanner'
             st.rerun()
-    with col2:
+   with col2:
         if st.button("📚 SAMMLUNG"):
             st.session_state.page = 'sammlung'
             st.rerun()
@@ -179,5 +179,6 @@ elif st.session_state.page == 'sammlung':
         st.info("Noch keine Münzen im Archiv.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
