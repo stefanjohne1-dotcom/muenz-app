@@ -132,7 +132,7 @@ elif st.session_state.page == 'scanner':
                 except Exception as e:
                     st.error(f"Fehler: {e}")
     else:
-    st.info("Bitte nimm erst beide Fotos auf.")
+        st.info("Bitte nimm erst beide Fotos auf.")
 
 # --- SEITE: SAMMLUNG (MIT FILTER & GESAMTWERT) ---
 elif st.session_state.page == 'sammlung':
@@ -179,6 +179,7 @@ elif st.session_state.page == 'sammlung':
         st.info("Noch keine Münzen im Archiv.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
