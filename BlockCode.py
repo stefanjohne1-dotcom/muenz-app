@@ -6,17 +6,17 @@ import io
 from PIL import Image
 from supabase import create_client, Client
 
-# --- 1. INITIALISIERUNG (ERWEITERT UM ANALYSIS_RESULT) ---
+# --- 1. INITIALISIERUNG (GEHIRN DER APP) ---
 if 'page' not in st.session_state: st.session_state.page = 'home'
 if 'foto1' not in st.session_state: st.session_state.foto1 = None
 if 'foto2' not in st.session_state: st.session_state.foto2 = None
 if 'analysis_result' not in st.session_state: st.session_state.analysis_result = None
 
-# --- 2. PREISE (LIVE & ALLE METALLE) ---
+# --- 2. LIVE-PREISE (ALLE METALLE) ---
 def get_live_prices():
     p = {
         "Gold": 135.9, "Silber": 1.6, "Kupfer": 0.009, 
-        "Nickel": 0.015, "Messing": 0.006, "Zink": 0.003,
+        "Nickel": 0.016, "Messing": 0.006, "Zink": 0.003,
         "Stahl": 0.001, "Eisen": 0.001, "source": "Schätzwerte"
     }
     try:
@@ -36,9 +36,9 @@ def init_supabase() -> Client:
 
 def optimiere(file):
     img = Image.open(file)
-    img.thumbnail((800, 800))
+    img.thumbnail((1024, 1024))
     buf = io.BytesIO()
-    img.convert("RGB").save(buf, format="JPEG", quality=75)
+    img.convert("RGB").save(buf, format="JPEG", quality=80)
     return buf.getvalue()
 
 def analysiere_ki(f1, f2, zustand):
@@ -60,9 +60,9 @@ def analysiere_ki(f1, f2, zustand):
     return res.json()['choices'][0]['message']['content']
 
 # --- 4. APP DESIGN ---
-st.set_page_config(page_title="Münz-Archiv", layout="centered")
+st.set_page_config(page_title="Papas Münz-Archiv", layout="centered")
 
-# --- HOME ---
+# --- SEITE: HOME ---
 if st.session_state.page == 'home':
     st.title("🪙 PAPAS MÜNZ-ARCHIV")
     p = get_live_prices()
@@ -75,79 +75,71 @@ if st.session_state.page == 'home':
             st.session_state.analysis_result = None
             st.session_state.page = 'scanner'; st.rerun()
     with col2:
-        if st.button("📚 SAMMLUNG"):
+        if st.button("📚 MEINE SAMMLUNG"):
             st.session_state.page = 'sammlung'; st.rerun()
 
-# --- SCANNER MIT BESTÄTIGUNG ---
+# --- SEITE: SCANNER (DATEI-UPLOAD AUS GALERIE) ---
 elif st.session_state.page == 'scanner':
     if st.button("⬅️ ABBRECHEN"): st.session_state.page = 'home'; st.rerun()
     
-    # SCHRITT A: FOTOS AUFNEHMEN (Nur wenn noch keine Analyse da ist)
+    # SCHRITT A: FOTOS EINFÜGEN
     if st.session_state.analysis_result is None:
-        st.subheader("Fotos aufnehmen")
-        zst = st.select_slider("Zustand:", options=["Gebraucht", "Normal", "Sehr gut", "Neuwertig"])
+        st.subheader("Fotos aus Galerie einfügen")
+        zst = st.select_slider("Zustand wählen:", options=["Gebraucht", "Normal", "Sehr gut", "Neuwertig"])
         
-        c1 = st.camera_input("1. VORDERSEITE")
-        if c1: st.session_state.foto1 = optimiere(c1)
-        
-        if st.session_state.foto1:
-            st.success("Vorderseite gespeichert! ✅")
-            c2 = st.camera_input("2. RÜCKSEITE")
-            if c2: st.session_state.foto2 = optimiere(c2)
+        # Einfügekästchen 1
+        u1 = st.file_uploader("1. VORDERSEITE einfügen", type=["jpg", "jpeg", "png"], key="u1")
+        if u1: st.session_state.foto1 = optimiere(u1)
+        if st.session_state.foto1: st.success("Vorderseite geladen! ✅")
+
+        # Einfügekästchen 2
+        u2 = st.file_uploader("2. RÜCKSEITE einfügen", type=["jpg", "jpeg", "png"], key="u2")
+        if u2: st.session_state.foto2 = optimiere(u2)
+        if st.session_state.foto2: st.success("Rückseite geladen! ✅")
 
         if st.session_state.foto1 and st.session_state.foto2:
+            st.divider()
             if st.button("ANALYSE STARTEN ✨", type="primary"):
                 with st.spinner("KI wertet aus..."):
                     res_raw = analysiere_ki(st.session_state.foto1, st.session_state.foto2, zst)
                     st.session_state.analysis_result = json.loads(res_raw)
                     st.rerun()
     
-    # SCHRITT B: BESTÄTIGUNG DER KI-ERGEBNISSE
+    # SCHRITT B: BESTÄTIGUNG
     else:
         res = st.session_state.analysis_result
         p = get_live_prices()
         k = p.get(res['metall'], 0.001)
         m_w = float(res['gewicht']) * float(res['reinheit']) * k
         
-        st.warning("⚠️ Bitte überprüfe die KI-Analyse:")
-        
+        st.warning("📊 Bitte Analyse bestätigen:")
         st.markdown(f"""
         <div style="background:white; padding:20px; border-radius:15px; border:2px solid #ffd700; color:#333;">
             <h3 style="margin-top:0;">{res['name']} ({res['jahr']})</h3>
-            <p><b>Land:</b> {res['land']} | <b>Material:</b> {res['metall']}</p>
-            <hr>
-            <p>📈 <b>Berechneter Materialwert: {m_w:.2f}€</b></p>
-            <p>💰 <b>Geschätzter Handelswert: {res['marktwert_num']}€</b></p>
+            <p>📈 <b>Materialwert: {m_w:.2f}€</b> | 💰 <b>Handelswert: {res['marktwert_num']}€</b></p>
             <hr>
             <p>⚖️ <b>Gewicht:</b> {res['gewicht']}g | 📏 <b>Größe:</b> {res['groesse']}</p>
-            <p>📉 <b>Auflage:</b> {res['auflage']}</p>
-            <p>🌟 <b>Besonderheit:</b> {res['besonderheiten']}</p>
-            <p style="font-style:italic; color:#555;">{res['info']}</p>
+            <p>🧪 <b>Metall:</b> {res['metall']} ({res['reinheit']*1000:.0f}/1000)</p>
+            <p>📉 <b>Auflage:</b> {res['auflage']} | 🌟 <b>Info:</b> {res['besonderheiten']}</p>
         </div>
         """, unsafe_allow_html=True)
         
         col_ok, col_no = st.columns(2)
         with col_ok:
-            if st.button("✅ STIMMT, AB INS ARCHIV", type="primary"):
-                with st.spinner("Speichere..."):
-                    client = init_supabase()
-                    client.table("muenzen").insert({
-                        "name": res['name'], "jahr": str(res['jahr']), "land": res['land'], 
-                        "metall": res['metall'], "reinheit": res['reinheit'], "gewicht": res['gewicht'],
-                        "groesse": res['groesse'], "auflage": res['auflage'], 
-                        "marktwert_num": res['marktwert_num'], "besonderheiten": res['besonderheiten'], "info": res['info']
-                    }).execute()
-                    st.balloons()
-                    st.session_state.analysis_result = None
-                    st.session_state.page = 'sammlung'; st.rerun()
-        
+            if st.button("✅ SPEICHERN", type="primary"):
+                client = init_supabase()
+                client.table("muenzen").insert({
+                    "name": res['name'], "jahr": str(res['jahr']), "land": res['land'], 
+                    "metall": res['metall'], "reinheit": res['reinheit'], "gewicht": res['gewicht'],
+                    "groesse": res['groesse'], "auflage": res['auflage'], 
+                    "marktwert_num": res['marktwert_num'], "besonderheiten": res['besonderheiten'], "info": res['info']
+                }).execute()
+                st.balloons(); st.session_state.analysis_result = None; st.session_state.page = 'sammlung'; st.rerun()
         with col_no:
-            if st.button("❌ FALSCH, NEU SCANNEN"):
-                st.session_state.analysis_result = None
-                st.session_state.foto1 = None; st.session_state.foto2 = None
-                st.rerun()
+            if st.button("❌ ABBRECHEN"):
+                st.session_state.analysis_result = None; st.rerun()
 
-# --- SAMMLUNG ---
+# --- SEITE: SAMMLUNG ---
 elif st.session_state.page == 'sammlung':
     if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
     st.title("📚 Sammlung")
@@ -156,11 +148,10 @@ elif st.session_state.page == 'sammlung':
     try:
         client = init_supabase()
         db = client.table("muenzen").select("*").order("created_at", desc=True).execute()
-        
         if db.data:
             all_m = sorted(list(set([m['metall'] for m in db.data])))
-            selected = st.multiselect("Filtern nach Metall:", options=all_m, default=all_m)
-            filtered = [m for m in db.data if m['metall'] in selected]
+            sel = st.multiselect("Filtern nach Metall:", options=all_m, default=all_m)
+            filtered = [m for m in db.data if m['metall'] in sel]
             
             t_mat, t_hand = 0, 0
             for m in filtered:
@@ -170,23 +161,15 @@ elif st.session_state.page == 'sammlung':
 
             st.markdown(f"""<div style="background:#f0f2f6;padding:20px;border-radius:15px;border:2px solid #007bff;">
                 <h3 style="margin:0;text-align:center;">GESAMTWERT</h3>
-                <table style="width:100%;margin-top:10px;">
+                <table style="width:100%;">
                     <tr><td>Materialwert:</td><td style="text-align:right;"><b>{t_mat:.2f}€</b></td></tr>
                     <tr><td>Handelswert:</td><td style="text-align:right;color:#007bff;"><b>{t_hand:.2f}€</b></td></tr>
                 </table></div>""", unsafe_allow_html=True)
 
             for m in filtered:
                 with st.expander(f"🪙 {m['name']} ({m['jahr']})"):
-                    k = p.get(m['metall'], 0.001)
-                    m_w = (m['gewicht'] or 0) * (m['reinheit'] or 0) * k
-                    st.write(f"**Material:** {m_w:.2f}€ | **Handel:** {m['marktwert_num']}€")
-                    st.write(f"**Daten:** {m['metall']} | {m['gewicht']}g | {m['groesse']} | Auflage: {m['auflage']}")
-                    st.write(f"**Besonderheit:** {m['besonderheiten']}")
-                    st.info(m['info'])
+                    st.write(f"Material: {((m['gewicht'] or 0)*(m['reinheit'] or 0)*p.get(m['metall'], 0)):.2f}€ | Handel: {m['marktwert_num']}€")
                     if st.button("🗑️ Löschen", key=f"del_{m['id']}"):
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
-        else: st.info("Archiv ist noch leer.")
-    except Exception as e: st.error(f"Fehler: {e}")
-
-
-
+    else: st.info("Archiv ist noch leer.")
+    except Exception as e: st.error(f"Datenbankfehler: {e}")
