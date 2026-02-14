@@ -23,8 +23,8 @@ def init_supabase() -> Client:
 def get_live_prices():
     """Holt Preise über Yahoo Finance (Live & ohne Limit)"""
     prices = {
-        "Gold": 75.10, "Silber": 0.95, "Kupfer": 0.009, 
-        "Nickel": 0.016, "Messing": 0.006, "Zink": 0.003,
+        "Gold": 136, "Silber": 1,60, "Kupfer": 0.009, 
+        "Nickel": 0.014, "Messing": 0.006, "Zink": 0.003,
         "Stahl": 0.001, "Eisen": 0.001, "source": "Schätzwerte"
     }
     try:
@@ -179,6 +179,7 @@ elif st.session_state.page == 'sammlung':
             st.info("Noch keine Münzen im Archiv.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
