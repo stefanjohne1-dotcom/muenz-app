@@ -173,8 +173,9 @@ elif   st.session_state.page == 'sammlung':
                         client.table("muenzen").delete().eq("id", m['id']).execute()
                         st.rerun()
         else:
-        st.info("Noch keine Münzen gespeichert.")
+            st.info("Noch keine Münzen gespeichert.")
     except Exception as e: st.error(f"Fehler: {e}")
+
 
 
 
