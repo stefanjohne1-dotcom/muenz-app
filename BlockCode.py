@@ -64,7 +64,7 @@ st.set_page_config(page_title="Papas Münz-Archiv", layout="centered")
 
 # --- SEITE: HOME ---
 if st.session_state.page == 'home':
-    st.title("🪙 PAPAS MÜNZ-ARCHIV")
+    st.title("🪙 PAPAS MÜNZ-APP")
     p = get_live_prices()
     st.markdown(f'<div style="background:#ffc107;padding:15px;border-radius:15px;text-align:center;color:#333;"><b>{p["source"]}</b><br>Gold: {p["Gold"]}€/g | Silber: {p["Silber"]}€/g</div>', unsafe_allow_html=True)
     
@@ -173,3 +173,4 @@ elif st.session_state.page == 'sammlung':
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
         else: st.info("Archiv ist noch leer.")
     except Exception as e: st.error(f"Datenbankfehler: {e}")
+
