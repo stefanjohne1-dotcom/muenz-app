@@ -126,7 +126,7 @@ elif   st.session_state.page == 'sammlung':
     if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
     st.title("📚 Deine Sammlung")
     
-       p = get_live_prices()
+    p = get_live_prices()
     try:
         client = init_supabase()
         db_res = client.table("muenzen").select("*").order("created_at", desc=True).execute()
@@ -175,6 +175,7 @@ elif   st.session_state.page == 'sammlung':
         else:
 st.info("Noch keine Münzen gespeichert.")
     except Exception as e: st.error(f"Fehler: {e}")
+
 
 
 
