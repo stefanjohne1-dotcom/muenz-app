@@ -16,15 +16,15 @@ if 'analysis_result' not in st.session_state: st.session_state.analysis_result =
 # --- 2. PREISE (LIVE & FALLBACK) ---
 def get_live_prices():
     p = {
-        "Gold": 135.9, "Silber": 1.6, "Kupfer": 0.009, 
-        "Nickel": 0.015, "Messing": 0.006, "Zink": 0.003,
+        "Gold": 75.10, "Silber": 0.95, "Kupfer": 0.009, 
+        "Nickel": 0.016, "Messing": 0.006, "Zink": 0.003,
         "Stahl": 0.001, "Eisen": 0.001, "source": "Schätzwerte"
     }
     try:
         h = {'User-Agent': 'Mozilla/5.0'}
-        res_g = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAU-EUR=X", headers=h, timeout=5).json()
+res_g = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAU-EUR=X", headers=h, timeout=5).json()
         p["Gold"] = round(res_g['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
-        res_s = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAG-EUR=X", headers=h, timeout=5).json()
+res_s = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAG-EUR=X", headers=h, timeout=5).json()
         p["Silber"] = round(res_s['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
         p["source"] = "Live-Kurse 📈"
     except: pass
@@ -58,16 +58,22 @@ def analysiere_ki(f1, f2, zustand):
         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b2}"}}]}],
         "response_format": { "type": "json_object" }
     }
-    res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+res = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     return res.json()['choices'][0]['message']['content']
 
 # --- 4. NAVIGATION ---
-st.set_page_config(page_title="PAPAS Münz-App", layout="centered")
+st.set_page_config(page_title="Münz-Archiv", layout="centered")
 
 if st.session_state.page == 'home':
-    st.title("🪙 PAPAS MÜNZ-App")
+    st.markdown("""
+    <div style="background-color: #ffd700; padding: 10px; border-radius: 10px; text-align: center;">
+        <h1 style="color: #333; margin: 0;">🪙 PAPAS MÜNZ-ARCHIV</h1>
+    </div>
+    <br>
+""", unsafe_allow_html=True)
+
     p = get_live_prices()
-    st.info(f"{p['source']} - Gold: {p['Gold']}€/g | Silber: {p['Silber']}€/g")
+st.info(f"{p['source']} - Gold: {p['Gold']}€/g | Silber: {p['Silber']}€/g")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -121,7 +127,13 @@ elif st.session_state.page == 'scanner':
 
 elif st.session_state.page == 'sammlung':
     if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
-    st.title("📚 Deine Sammlung")
+    st.markdown("""
+    <div style="background-color: #ffd700; padding: 10px; border-radius: 10px; text-align: center;">
+        <h1 style="color: #333; margin: 0;">📚 Deine Sammlung</h1>
+    </div>
+    <br>
+""", unsafe_allow_html=True)
+
     p = get_live_prices()
     try:
         db = init_supabase().table("muenzen").select("*").order("created_at", desc=True).execute()
@@ -142,6 +154,5 @@ elif st.session_state.page == 'sammlung':
                     st.write(f"Handelswert: {m['marktwert_num']}€")
                     if st.button("🗑️ Löschen", key=f"del_{m['id']}"):
                         init_supabase().table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
-        else: st.info("Archiv leer.")
+else: st.info("Archiv leer.")
     except Exception as e: st.error(f"Fehler: {e}")
-
