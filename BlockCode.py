@@ -67,7 +67,7 @@ st.set_page_config(page_title="PAPAS Münz-App", layout="centered")
 if st.session_state.page == 'home':
     st.title("🪙 PAPAS MÜNZ-App")
     p = get_live_prices()
-st.info(f"{p['source']} - Gold: {p['Gold']}€/g | Silber: {p['Silber']}€/g")
+    st.info(f"{p['source']} - Gold: {p['Gold']}€/g | Silber: {p['Silber']}€/g")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -144,3 +144,4 @@ elif st.session_state.page == 'sammlung':
                         init_supabase().table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
         else: st.info("Archiv leer.")
     except Exception as e: st.error(f"Fehler: {e}")
+
