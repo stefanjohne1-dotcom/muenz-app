@@ -103,9 +103,9 @@ elif st.session_state.page == 'scanner':
 # SEITE: SAMMLUNG (Mit Filtern & Gesamtwert)
 elif st.session_state.page == 'sammlung':
     if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
-        st.title("📚 Deine Schätze")
+    st.title("📚 Deine Schätze")
     
-        p = get_live_prices()
+    p = get_live_prices()
     try:
         client = init_supabase()
         db_res = client.table("muenzen").select("*").order("created_at", desc=True).execute()
@@ -137,4 +137,5 @@ elif st.session_state.page == 'sammlung':
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
 else: st.info("Archiv ist noch leer.")
     except Exception as e: st.error(f"Datenbankfehler: {e}")
+
 
