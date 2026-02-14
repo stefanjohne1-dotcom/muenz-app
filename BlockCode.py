@@ -176,9 +176,10 @@ elif st.session_state.page == 'sammlung':
                         client.table("muenzen").delete().eq("id", m['id']).execute()
                         st.rerun()
         else:
-        st.info("Noch keine Münzen im Archiv.")
+            st.info("Noch keine Münzen im Archiv.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
