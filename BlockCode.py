@@ -69,13 +69,13 @@ def analysiere_ki(f1, f2, zustand):
     1. PRÄGEJAHR-CHECK: Das Jahr ist dein wichtigster Parameter.
     2. LOGIK-ABGLEICH: Gleiche das Prägejahr zwingend mit den Symbolen/Wappen ab. 
        Beispiel: Ein Jahr von 1950 passt nicht zu einem Kaiser-Porträt oder Wappen des 19. Jahrhunderts.
-    3. WICHTIG: Berücksichtige moderne Sonderausgaben! Nominale wie 11 Euro (z.B. Deutschland 2024), 25 Euro oder andere ungewöhnliche Gedenkmünzen-Werte sind KEIN Fehler
+    3. WICHTIG: MODERNE SONDERMÜNZEN (ab 2000) haben oft ungewöhnliche Nennwerte (wie z.B. 11 Euro z.B. Deutschland 2024, 25 Euro oder andere ungewöhnliche Gedenkmünzen-Werte. Das ist KORREKT und KEIN Fehler!
     4. Nur wenn das Jahr absolut NICHT zur Epoche passt (z.B. Jahr 2024 bei einem Kaiserreich-Adler oder Eisernes Kreuz), beginne den "name" mit dem Wort "FEHLER:".
     
     Zustand: {zustand}.
     Antworte NUR als JSON:
     {{
-      "name": "Name oder Fehlerbeschreibung",
+      "name": "Vollständiger Name der Münze",
       "jahr": "Gefundenes Prägejahr",
       "land": "Land",
       "metall": "Gold/Silber/Kupfer/Nickel/Messing/Zink/Stahl/Eisen/Aluminium", 
@@ -260,6 +260,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
