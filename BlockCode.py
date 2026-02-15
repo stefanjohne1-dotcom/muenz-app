@@ -52,24 +52,31 @@ def analysiere_ki(f1, f2, zustand):
     b1 = base64.b64encode(f1).decode(); b2 = base64.b64encode(f2).decode()
     headers = {"Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}"}
     
-    # Der verbesserte Befehl für die KI:
+    # Der "strenge" Experten-Prompt:
     prompt = f"""
-    Identifiziere diese Münze als numismatischer Experte und Bullion-Handel Experte. Zustand: {zustand}.
-    Erstelle eine ausführliche Analyse.
-    Antworte NUR als JSON-Objekt mit diesen Feldern:
+    Du bist ein numismatischer Sachverständiger und Experte für Edelmetallmünzen. Identifiziere diese Münze.
+    
+    WICHTIGSTE REGELN:
+    1. PRÄGEJAHR-CHECK: Das Jahr ist dein wichtigster Parameter.
+    2. LOGIK-ABGLEICH: Gleiche das Jahr zwingend mit den Symbolen ab. 
+       Beispiel: Ein Jahr von 1950 passt nicht zu einem Kaiser-Porträt oder Wappen des 19. Jahrhunderts.
+    3. BEI WIDERSPRUCH: Wenn das Jahr nicht zum Wappen, Land oder Herrscher passt, 
+       schreibe in das Feld "name": "FEHLER: Logik-Widerspruch (Jahr/Wappen)".
+    
+    Zustand: {zustand}.
+    Antworte NUR als JSON:
     {{
-      "name": "Vollständiger Name der Münze",
-      "jahr": "Prägejahr",
-      "land": "Herkunftsland",
-      "metall": "Gold/Silber/Kupfer/Nickel/Messing/Zink/Stahl/Eisen", 
+      "name": "Name oder Fehlerbeschreibung",
+      "jahr": "Gefundenes Prägejahr",
+      "land": "Land",
+      "metall": "Gold/Silber/Kupfer/Nickel/Messing/Zink/Stahl/Eisen/Aluminium", 
       "reinheit": 0.9, 
-      "gewicht": 15.55,
-      "metallwert_num": 850.0,
-      "groesse": "Durchmesser in mm", 
-      "auflage": "Genaue Auflagenzahl oder fundierte Schätzung", 
-      "marktwert_num": 850.0, 
-      "besonderheiten": "Detaillierte Merkmale, Varianten oder Prägestätten", 
-      "info": "Ausführlicher historischer Hintergrund Fehlprägungen, Fälschungen und Bedeutung für Sammler (3-4 Sätze)"
+      "gewicht": 15.55, 
+      "groesse": "mm", 
+      "auflage": "Auflagenzahl", 
+      "marktwert_num": 0.0, 
+      "besonderheiten": "Warum passt das Jahr zum Wappen? (Kurze Begründung)", 
+      "info": "Historischer Kontext, Sind Fehlprägungen bekannt? (3-4 Sätze)"
     }}
     """
     
@@ -120,54 +127,74 @@ elif st.session_state.page == 'scanner':
         
         u1 = st.file_uploader("1. VORDERSEITE einfügen", type=["jpg", "jpeg", "png"], key="u1")
         if u1: st.session_state.foto1 = optimiere(u1)
-        if st.session_state.foto1: st.success("Vorderseite geladen! ✅")
-
         u2 = st.file_uploader("2. RÜCKSEITE einfügen", type=["jpg", "jpeg", "png"], key="u2")
         if u2: st.session_state.foto2 = optimiere(u2)
-        if st.session_state.foto2: st.success("Rückseite geladen! ✅")
 
         if st.session_state.foto1 and st.session_state.foto2:
             st.divider()
             if st.button("ANALYSE STARTEN ✨", type="primary"):
-                with st.spinner("KI wertet aus..."):
-                    try:
-                        res_raw = analysiere_ki(st.session_state.foto1, st.session_state.foto2, zst)
-                        st.session_state.analysis_result = json.loads(res_raw)
-                        st.rerun()
-                    except Exception as e: st.error(f"Fehler: {e}")
+                with st.spinner("KI prüft Logik von Jahr und Wappen..."):
+                    res_raw = analysiere_ki(st.session_state.foto1, st.session_state.foto2, zst)
+                    st.session_state.analysis_result = json.loads(res_raw)
+                    st.rerun()
     
     else:
         res = st.session_state.analysis_result
         p = get_live_prices()
+        
+        # --- LOGIK-CHECK & MANUELLE KORREKTUR ---
+        ist_fehler = "FEHLER" in res['name'].upper()
+        
+        if ist_fehler:
+            st.error(f"🛑 LOGIK-FEHLER: {res['name']}")
+            st.info("Das Jahr scheint nicht zum Wappen zu passen. Du kannst es unten korrigieren, um den Speicher-Button freizugeben.")
+        
+        # Manuelle Korrektur-Möglichkeit
+        col_edit1, col_edit2 = st.columns([1, 2])
+        with col_edit1:
+            neu_jahr = st.text_input("Korrektes Jahr:", value=res['jahr'])
+        with col_edit2:
+            # Wenn der Nutzer das Jahr ändert, "entsperren" wir den Fehler
+            freigabe = st.checkbox("Daten trotz Warnung freigeben (Jahr manuell geprüft)")
+
+        # Button freigeben, wenn kein Fehler vorliegt ODER die Freigabe angehakt ist
+        button_aktiv = (not ist_fehler) or freigabe
+
+        # Berechnungen mit dem (evtl. neuen) Jahr
         kurs = p.get(res['metall'], 0.001)
         gew, rein = reinige_zahl(res['gewicht']), reinige_zahl(res['reinheit'])
         m_w = gew * rein * kurs
-        
-        st.warning("📊 Bitte Analyse bestätigen:")
+
         st.markdown(f"""
-        <div style="background:white; padding:20px; border-radius:15px; border:2px solid #ffd700; color:#333;">
-            <h3 style="margin-top:0;">{res['name']} ({res['jahr']})</h3>
-            <p>📈 <b>Materialwert: {m_w:.2f}€</b> | 💰 <b>Handelswert: {res['marktwert_num']}€</b></p>
+        <div style="background:white; padding:20px; border-radius:15px; border:2px solid {'#ff4b4b' if (ist_fehler and not freigabe) else '#ffd700'}; color:#333;">
+            <h3 style="margin-top:0;">{res['name'] if not ist_fehler else '⚠️ Überprüfung notwendig'}</h3>
+            <p><b>Jahr:</b> {neu_jahr} | <b>Materialwert:</b> {m_w:.2f}€</p>
             <hr>
-            <p>⚖️ <b>Gewicht:</b> {res['gewicht']}g | 🧪 <b>Metall:</b> {res['metall']} ({rein*1000:.0f}/1000)</p>
-            <p>📉 <b>Auflage:</b> {res['auflage']} | 📏 <b>Größe:</b> {res['groesse']}</p>
-            <p>🌟 <b>Besonderheit:</b> {res['besonderheiten']}</p>
+            <p><b>KI-Bericht:</b> {res['besonderheiten']}</p>
         </div>
         """, unsafe_allow_html=True)
         
-        col_ok, col_no = st.columns(2)
-        with col_ok:
-            if st.button("✅ SPEICHERN", type="primary"):
-                init_supabase().table("muenzen").insert({
-                    "name": res['name'], "jahr": str(res['jahr']), "land": res['land'], 
-                    "metall": res['metall'], "reinheit": rein, "gewicht": gew,
-                    "groesse": res['groesse'], "auflage": res['auflage'], 
-                    "marktwert_num": reinige_zahl(res['marktwert_num']), 
-                    "besonderheiten": res['besonderheiten'], "info": res['info']
-                }).execute()
-                st.balloons(); st.session_state.analysis_result = None; st.session_state.page = 'sammlung'; st.rerun()
-        with col_no:
-            if st.button("❌ ABBRECHEN"):
+        st.divider()
+        c_ok, c_no = st.columns(2)
+        with c_ok:
+            if button_aktiv:
+                if st.button("✅ JETZT SPEICHERN", type="primary"):
+                    client = init_supabase()
+                    client.table("muenzen").insert({
+                        "name": res['name'].replace("FEHLER: ", ""), # Entfernt das Fehler-Präfix
+                        "jahr": str(neu_jahr), # Nutzt das manuell eingetragene Jahr
+                        "land": res['land'], "metall": res['metall'], 
+                        "reinheit": rein, "gewicht": gew,
+                        "groesse": res['groesse'], "auflage": res['auflage'], 
+                        "marktwert_num": reinige_zahl(res['marktwert_num']), 
+                        "besonderheiten": res['besonderheiten'], "info": res['info']
+                    }).execute()
+                    st.balloons(); st.session_state.analysis_result = None; st.session_state.page = 'sammlung'; st.rerun()
+            else:
+                st.button("🚫 SPEICHERN GESPERRT", disabled=True)
+        
+        with c_no:
+            if st.button("❌ VERWERFEN"):
                 st.session_state.analysis_result = None; st.rerun()
 
 # --- SEITE: SAMMLUNG (MIT ALLEN DETAILS) ---
@@ -224,6 +251,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
