@@ -27,7 +27,10 @@ def get_live_prices():
         res_s = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAG-EUR=X", headers=h, timeout=5).json()
         p["Silber"] = round(res_s['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
         p["source"] = "Yahoo Live 📈"
-    except: pass
+    except Exception as e:
+        # Dies zeigt dir in der App den genauen Fehler an, statt ihn nur zu ignorieren
+        st.sidebar.error(f"Live-Kurs Fehler: {e}")
+
     return p
 
 # --- 3. HILFSFUNKTIONEN ---
@@ -251,6 +254,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
