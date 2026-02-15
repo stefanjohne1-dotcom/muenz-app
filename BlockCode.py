@@ -63,7 +63,8 @@ def analysiere_ki(f1, f2, zustand):
     
     # Der "strenge" Experten-Prompt:
     prompt = f"""
-    Du bist ein numismatischer Sachverständiger und Experte und Münzhändler. Identifiziere diese Münze anhand deines Wissens über offizielle Münzkataloge (KM, Jaeger, numista,ngccoin, etc.).
+    Du bist ein numismatischer Sachverständiger, numismatischer Gutachter und Münzhändler. Identifiziere diese Münze.
+    WICHTIG!: Nutze deine internes Wissen über offizielle Münzkataloge (KM, Jaeger, numista,ngccoin, etc.) und über offizielle Prägevorgaben (z.B. Bundesbank, Royal Mint, etc.).
     
     OBERSTE REGEL (EXTREM WICHTIG, NICHT IGNORIEREN!):
     Lese den Nennwert (z.B. "11 Euro", "25 Euro" EXAKT von den Bildern ab. VERBOTEN: Rate nicht aufgrund von Standardwerten! Wenn dort eine "11" steht, musst du diesen WERT ("11") akzeptieren, auch wenn "10" üblicher wäre.
@@ -264,6 +265,7 @@ elif st.session_state.page == 'sammlung':
             
     except Exception as e:
         st.error(f"Fehler beim Laden: {e}")
+
 
 
 
