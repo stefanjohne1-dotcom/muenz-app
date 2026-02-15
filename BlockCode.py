@@ -63,7 +63,7 @@ def analysiere_ki(f1, f2, zustand):
     
     # Der "strenge" Experten-Prompt:
     prompt = f"""
-    Du bist ein numismatischer Sachverständiger und Experte für Edelmetallmünzen. Identifiziere diese Münze.
+    Du bist ein numismatischer Sachverständiger und Experte und Münzhändler. Identifiziere diese Münze anhand deines Wissens über offizielle Münzkataloge (KM, Jaeger, numista,ngccoin, etc.).
     
     OBERSTE REGEL (EXTREM WICHTIG, NICHT IGNORIEREN!):
     Lese den Nennwert (z.B. "11 Euro", "25 Euro" EXAKT von den Bildern ab. VERBOTEN: Rate nicht aufgrund von Standardwerten! Wenn dort eine "11" steht, musst du diesen WERT ("11") akzeptieren, auch wenn "10" üblicher wäre.
@@ -76,7 +76,8 @@ def analysiere_ki(f1, f2, zustand):
     4. Nur wenn das Jahr absolut NICHT zur Epoche passt (z.B. Jahr 2024 bei einem Kaiserreich-Adler oder Eisernes Kreuz), beginne den "name" mit dem Wort "FEHLER:".
 
     WICHTIG FÜR DIE WERTERMITTLUNG:
-    1. Ermittle das EXAKTE Gewicht, die EXAKTE Reinheit (Feingehalt), die EXAKTE Auflage (wie viele Münzen wurden im Prägejahr geprägt), die EXAKTE groesse und den Marktwert aus dem Durchschnittspreis der letzten zehn von Dir gefundenen Verkäufe dieser Münze.
+    1. Ermittle das OFFIZIELLE Ausgabegewicht, die EXAKTE Reinheit (Feingehalt), die EXAKTE offizielle Auflage (wie viele Münzen wurden im Prägejahr geprägt), die OFFIZIELLE groesse.
+    2. Schätze den aktuellen Handelswert für Sammler (beziehe dein Wissen aus den offiziellen Katalogen mit ein).
     2. Verwende NIEMALS die Platzhalterwerte 15.55, 0.9, Durchmesser in mm, Auflagenzahl und 0.0. Wenn die Münze (z.B. 11 Euro von 2024) 14g wiegt und 500er Silber (0.5) ist, MUSST du 14.0 und 0.5 angeben.
     
     Zustand: {zustand}.
@@ -263,6 +264,7 @@ elif st.session_state.page == 'sammlung':
             
     except Exception as e:
         st.error(f"Fehler beim Laden: {e}")
+
 
 
 
