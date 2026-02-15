@@ -63,8 +63,8 @@ def analysiere_ki(f1, f2, zustand):
     
     # Der "strenge" Experten-Prompt:
     prompt = f"""
-    Du bist ein numismatischer Sachverständiger, numismatischer Gutachter und Münzhändler. Identifiziere diese Münze und suche historische Fakten und interessante Hintergrundinformationen.
-    WICHTIG!: Nutze deine internes Wissen über offizielle Münzkataloge (KM, Jaeger, numista,ngccoin, etc.) und über offizielle Prägevorgaben (z.B. Bundesbank, Royal Mint, etc.).
+    Du bist ein numismatischer Sachverständiger, numismatischer Gutachter und Münzhändler. Identifiziere diese Münze basierend auf den Daten von numista.com und suche historische Fakten und interessante Hintergrundinformationen.
+    WICHTIG!: Suche in deinem internen Wissen nach dem entsprechenden Numista-Eintrag.
     
     OBERSTE REGEL (EXTREM WICHTIG, NICHT IGNORIEREN!):
     Lese den Nennwert (z.B. "11 Euro", "25 Euro" EXAKT von den Bildern ab. VERBOTEN: Rate nicht aufgrund von Standardwerten! Wenn dort eine "11" steht, musst du diesen WERT ("11") akzeptieren, auch wenn "10" üblicher wäre.
@@ -76,11 +76,11 @@ def analysiere_ki(f1, f2, zustand):
     3. WICHTIG: MODERNE SONDERMÜNZEN (ab 2000) haben oft ungewöhnliche Nennwerte (wie z.B. 11 Euro z.B. Deutschland 2024, 25 Euro oder andere ungewöhnliche Gedenkmünzen-Werte. Das ist KORREKT und KEIN Fehler!
     4. Nur wenn das Jahr absolut NICHT zur Epoche passt (z.B. Jahr 2024 bei einem Kaiserreich-Adler oder Eisernes Kreuz), beginne den "name" mit dem Wort "FEHLER:".
 
-    WICHTIG FÜR DIE WERTERMITTLUNG:
+    WICHTIG FÜR DIE WERTERMITTLUNG (nimm die Daten von Numista):
     1. Ermittle das OFFIZIELLE Ausgabegewicht, die EXAKTE Reinheit (Feingehalt), die EXAKTE offizielle Auflage (wie viele Münzen wurden im Prägejahr geprägt), die OFFIZIELLE groesse.
-    2. Schätze den aktuellen Handelswert für Sammler (beziehe dein Wissen aus den offiziellen Katalogen mit ein).
-    2. Verwende NIEMALS die Platzhalterwerte 15.55, 0.9, Durchmesser in mm, Auflagenzahl und 0.0. Wenn die Münze (z.B. 11 Euro von 2024) 14g wiegt und 500er Silber (0.5) ist, MUSST du 14.0 und 0.5 angeben.
-    
+    2. Schätze den aktuellen Handelswert für Sammler (beziehe dein Wissen aus den offiziellen Katalogen und Numista mit ein).
+    3. Verwende NIEMALS die Platzhalterwerte 15.55, 0.9, Durchmesser in mm, Auflagenzahl und 0.0. Wenn die Münze (z.B. 11 Euro von 2024) 14g wiegt und 500er Silber (0.5) ist, MUSST du 14.0 und 0.5 angeben.
+    4. Nutze KEINE Standardwerte! Jede Münze muss ihren eigenen NUMISTA-DATENSATZ widerspiegeln.
     Zustand: {zustand}.
     Antworte NUR als JSON:
     {{
@@ -265,6 +265,7 @@ elif st.session_state.page == 'sammlung':
             
     except Exception as e:
         st.error(f"Fehler beim Laden: {e}")
+
 
 
 
