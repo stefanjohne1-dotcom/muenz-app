@@ -65,8 +65,8 @@ def analysiere_ki(f1, f2, zustand):
     prompt = f"""
     Du bist ein numismatischer Sachverständiger und Experte für Edelmetallmünzen. Identifiziere diese Münze.
     
-    OBERSTE REGEL - VISUELLE ERKENNUNG GEHT VOR WISSEN:
-    Lese den Nennwert (z.B. "11 Euro", "25 Euro" EXAKT von den Bildern ab. VERBOTEN: Rate nicht aufgrund von Standardwerten! Wenn dort eine "11" steht, musst du "11" erkennen, auch wenn "10" üblicher wäre.
+    OBERSTE REGEL (EXTREM WICHTIG, NICHT IGNORIEREN!):
+    Lese den Nennwert (z.B. "11 Euro", "25 Euro" EXAKT von den Bildern ab. VERBOTEN: Rate nicht aufgrund von Standardwerten! Wenn dort eine "11" steht, musst du diesen WERT ("11") akzeptieren, auch wenn "10" üblicher wäre.
     
     REGELN ZUR LOGIK-WARNUNG (SEHR LOCKER):
     1. PRÄGEJAHR-CHECK: Das Jahr ist dein wichtigster Parameter.
@@ -267,6 +267,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
