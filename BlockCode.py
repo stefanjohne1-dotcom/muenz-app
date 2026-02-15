@@ -15,22 +15,28 @@ if 'analysis_result' not in st.session_state: st.session_state.analysis_result =
 
 # --- 2. PREISE (LIVE & ALLE METALLE) ---
 def get_live_prices():
+    # Standardwerte (Punkte statt Kommas nutzen!)
     p = {
-        "Gold": 135.9, "Silber": 2.1, "Kupfer": 0.009, 
+        "Gold": 135.9, "Silber": 1.6, "Kupfer": 0.009, 
         "Nickel": 0.015, "Messing": 0.006, "Zink": 0.003,
         "Stahl": 0.001, "Eisen": 0.001, "source": "Schätzwerte"
     }
     try:
         h = {'User-Agent': 'Mozilla/5.0'}
+        # Gold-Abfrage
         res_g = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAU-EUR=X", headers=h, timeout=5).json()
-        p["Gold"] = round(res_g['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
+        # Prüfen, ob die Daten-Struktur wirklich existiert (verhindert NoneType-Fehler)
+        if res_g and 'chart' in res_g and res_g['chart']['result']:
+            p["Gold"] = round(res_g['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
+            
+        # Silber-Abfrage
         res_s = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/XAG-EUR=X", headers=h, timeout=5).json()
-        p["Silber"] = round(res_s['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
-        p["source"] = "Yahoo Live 📈"
-    except Exception as e:
-        # Dies zeigt dir in der App den genauen Fehler an, statt ihn nur zu ignorieren
-        st.sidebar.error(f"Live-Kurs Fehler: {e}")
-
+        if res_s and 'chart' in res_s and res_s['chart']['result']:
+            p["Silber"] = round(res_s['chart']['result'][0]['meta']['regularMarketPrice'] / 31.1035, 2)
+            p["source"] = "Yahoo Live 📈"
+    except Exception:
+        # Falls irgendwas schiefgeht, bleiben einfach die Schätzwerte stehen
+        pass
     return p
 
 # --- 3. HILFSFUNKTIONEN ---
@@ -254,6 +260,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
