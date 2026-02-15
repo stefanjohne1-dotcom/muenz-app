@@ -65,12 +65,19 @@ def analysiere_ki(f1, f2, zustand):
     prompt = f"""
     Du bist ein numismatischer Sachverständiger und Experte für Edelmetallmünzen. Identifiziere diese Münze.
     
-    WICHTIGSTE REGELN:
+    OBERSTE REGEL - VISUELLE ERKENNUNG GEHT VOR WISSEN:
+    Lese den Nennwert (z.B. "11 Euro", "25 Euro" EXAKT von den Bildern ab. VERBOTEN: Rate nicht aufgrund von Standardwerten! Wenn dort eine "11" steht, musst du "11" erkennen, auch wenn "10" üblicher wäre.
+    
+    REGELN ZUR LOGIK-WARNUNG (SEHR LOCKER):
     1. PRÄGEJAHR-CHECK: Das Jahr ist dein wichtigster Parameter.
     2. LOGIK-ABGLEICH: Gleiche das Prägejahr zwingend mit den Symbolen/Wappen ab. 
        Beispiel: Ein Jahr von 1950 passt nicht zu einem Kaiser-Porträt oder Wappen des 19. Jahrhunderts.
     3. WICHTIG: MODERNE SONDERMÜNZEN (ab 2000) haben oft ungewöhnliche Nennwerte (wie z.B. 11 Euro z.B. Deutschland 2024, 25 Euro oder andere ungewöhnliche Gedenkmünzen-Werte. Das ist KORREKT und KEIN Fehler!
     4. Nur wenn das Jahr absolut NICHT zur Epoche passt (z.B. Jahr 2024 bei einem Kaiserreich-Adler oder Eisernes Kreuz), beginne den "name" mit dem Wort "FEHLER:".
+
+    WICHTIG FÜR DIE WERTERMITTLUNG:
+    1. Ermittle das EXAKTE Gewicht, die EXAKTE Reinheit (Feingehalt), die EXAKTE Auflage (wie viele Münzen wurden im Prägejahr geprägt), die EXAKTE groesse und den Marktwert aus dem Durchschnittspreis der letzten zehn von Dir gefundenen Verkäufe dieser Münze.
+    2. Verwende NIEMALS die Platzhalterwerte 15.55, 0.9, mm, Auflagenzahl und 0.0. Wenn die Münze (z.B. 11 Euro von 2024) 14g wiegt und 500er Silber (0.5) ist, MUSST du 14.0 und 0.5 angeben.
     
     Zustand: {zustand}.
     Antworte NUR als JSON:
@@ -260,6 +267,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
