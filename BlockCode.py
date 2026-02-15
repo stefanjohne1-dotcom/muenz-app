@@ -204,11 +204,9 @@ elif st.session_state.page == 'scanner':
         with c2:
             if st.button("❌ VERWERFEN"): st.session_state.analysis_result = None; st.rerun()
 
-# --- SEITE: SAMMLUNG (MIT ALLEN DETAILS) ---
+# --- 4. SEITE: SAMMLUNG (MIT KORRIGIERTEM DESIGN & LOGIK) ---
 elif st.session_state.page == 'sammlung':
-    if st.button("⬅️ ZURÜCK"):
-        st.session_state.page = 'home'
-        st.rerun()
+    if st.button("⬅️ ZURÜCK"): st.session_state.page = 'home'; st.rerun()
     
     st.markdown("""
         <div style="background-color: #ffd700; padding: 10px; border-radius: 10px; text-align: center;">
@@ -221,10 +219,11 @@ elif st.session_state.page == 'sammlung':
         client = init_supabase()
         db = client.table("muenzen").select("*").order("created_at", desc=True).execute()
         
-        if db.data:
-            all_m = sorted(list(set([m['metall'] for m in db.data])))
-            selected = st.multiselect("Filtern nach Metall:", options=all_m, default=all_m)
-            filtered = [m for m in db.data if m['metall'] in selected]
+        # LOGIK-FIX: Wir prüfen erst, ob ÜBERHAUPT Daten da sind
+        if db.data and len(db.data) > 0:
+            metals = sorted(list(set([m['metall'] for m in db.data])))
+            sel = st.multiselect("Filtern nach Metall:", options=metals, default=metals)
+            filtered = [m for m in db.data if m['metall'] in sel]
             
             t_mat, t_hand = 0, 0
             for m in filtered:
@@ -232,32 +231,39 @@ elif st.session_state.page == 'sammlung':
                 t_mat += (m['gewicht'] or 0) * (m['reinheit'] or 0) * k
                 t_hand += (m['marktwert_num'] or 0)
 
-            st.markdown(f"""<div style="background:#f0f2f6;padding:20px;border-radius:15px;border:2px solid #007bff;">
-                <h3 style="margin:0;text-align:center;">GESAMTWERT</h3>
-                <table style="width:100%;margin-top:10px;">
-                    <tr><td>Materialwert (Schmelzwert):</td><td style="text-align:right;"><b>{t_mat:.2f}€</b></td></tr>
-                    <tr><td>Handelswert (Marktwert):</td><td style="text-align:right;color:#007bff;"><b>{t_hand:.2f}€</b></td></tr>
-                </table></div>""", unsafe_allow_html=True)
+            # DESIGN-FIX: Dunkler Hintergrund für bessere Lesbarkeit
+            st.markdown(f"""
+                <div style="background-color: #1e3a8a; padding: 25px; border-radius: 15px; border: 2px solid #ffd700; color: white; text-align: center; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
+                    <h3 style="margin: 0; color: #ffd700;">GESAMTWERT</h3>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
+                    <table style="width: 100%; color: white; font-size: 1.1em;">
+                        <tr>
+                            <td style="text-align: left;">Materialwert (Schmelz):</td>
+                            <td style="text-align: right;"><b>{t_mat:.2f}€</b></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left; color: #ffd700;">Handelswert (Markt):</td>
+                            <td style="text-align: right; color: #ffd700;"><b>{t_hand:.2f}€</b></td>
+                        </tr>
+                    </table>
+                </div><br>
+            """, unsafe_allow_html=True)
 
+            # Münz-Liste
             for m in filtered:
-                # Expander zeigt alle Zusatzinfos an
                 with st.expander(f"🪙 {m['name']} ({m['jahr']})"):
-                    k = p.get(m['metall'], 0.001)
-                    m_w = (m['gewicht'] or 0) * (m['reinheit'] or 0) * k
-                    
-                    st.write(f"**Land:** {m['land']}")
-                    st.write(f"**Materialwert:** {m_w:.2f}€ | **Handelswert:** {m['marktwert_num']}€")
-                    st.write(f"**Technische Daten:** {m['metall']} | {m['gewicht']}g | {m['groesse']}")
-                    st.write(f"**Auflage:** {m['auflage']}")
-                    st.write(f"**Besonderheiten:** {m['besonderheiten']}")
-                    st.info(f"**Hintergrund-Info:** {m['info']}")
-                    
+                    st.write(f"**Material:** {((m['gewicht'] or 0)*(m['reinheit'] or 0)*p.get(m['metall'], 0)):.2f}€ | **Handel:** {m['marktwert_num']}€")
+                    st.write(f"**Details:** {m['gewicht']}g | {m['metall']} ({m['reinheit']})")
                     if st.button("🗑️ Löschen", key=f"del_{m['id']}"):
                         client.table("muenzen").delete().eq("id", m['id']).execute(); st.rerun()
-            else:
-                st.info("Archiv ist noch leer.")
+        
+        # Die Meldung erscheint jetzt NUR, wenn db.data wirklich leer ist
+        else:
+st.info("Das Archiv ist aktuell noch leer. Scanne deine erste Münze!")
+            
     except Exception as e:
-        st.error(f"Datenbankfehler: {e}")
+        st.error(f"Fehler beim Laden: {e}")
+
 
 
 
