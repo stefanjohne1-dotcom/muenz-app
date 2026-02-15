@@ -63,13 +63,13 @@ def analysiere_ki(f1, f2, zustand):
     
     # Der "strenge" Experten-Prompt:
     prompt = f"""
-    Du bist ein numismatischer Sachverständiger, numismatischer Gutachter und Münzhändler. Identifiziere diese Münze.
+    Du bist ein numismatischer Sachverständiger, numismatischer Gutachter und Münzhändler. Identifiziere diese Münze und suche historische Fakten und interessante Hintergrundinformationen.
     WICHTIG!: Nutze deine internes Wissen über offizielle Münzkataloge (KM, Jaeger, numista,ngccoin, etc.) und über offizielle Prägevorgaben (z.B. Bundesbank, Royal Mint, etc.).
     
     OBERSTE REGEL (EXTREM WICHTIG, NICHT IGNORIEREN!):
     Lese den Nennwert (z.B. "11 Euro", "25 Euro" EXAKT von den Bildern ab. VERBOTEN: Rate nicht aufgrund von Standardwerten! Wenn dort eine "11" steht, musst du diesen WERT ("11") akzeptieren, auch wenn "10" üblicher wäre.
     
-    REGELN ZUR LOGIK-WARNUNG (SEHR LOCKER):
+    REGELN ZUR LOGIK-WARNUNG (LOCKER):
     1. PRÄGEJAHR-CHECK: Das Jahr ist dein wichtigster Parameter.
     2. LOGIK-ABGLEICH: Gleiche das Prägejahr zwingend mit den Symbolen/Wappen ab. 
        Beispiel: Ein Jahr von 1950 passt nicht zu einem Kaiser-Porträt oder Wappen des 19. Jahrhunderts.
@@ -93,7 +93,7 @@ def analysiere_ki(f1, f2, zustand):
       "groesse": "Durchmesser in mm", 
       "auflage": "Auflagenzahl", 
       "marktwert_num": 0.0, 
-      "besonderheiten": "Begründung der Logikprüfung (z.B. Warum das Nominal zum Jahr passt)", 
+      "besonderheiten": "Begründung der Logikprüfung (z.B. Warum das Jahr zum Wappen passt)", "Hintergrundinfos", 
       "info": "Historischer Kontext, Sind Fehlprägungen bekannt? (3-4 Sätze)"
     }}
     """
@@ -265,6 +265,7 @@ elif st.session_state.page == 'sammlung':
             
     except Exception as e:
         st.error(f"Fehler beim Laden: {e}")
+
 
 
 
