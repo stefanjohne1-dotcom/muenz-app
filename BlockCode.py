@@ -77,7 +77,7 @@ def analysiere_ki(f1, f2, zustand):
 
     WICHTIG FÜR DIE WERTERMITTLUNG:
     1. Ermittle das EXAKTE Gewicht, die EXAKTE Reinheit (Feingehalt), die EXAKTE Auflage (wie viele Münzen wurden im Prägejahr geprägt), die EXAKTE groesse und den Marktwert aus dem Durchschnittspreis der letzten zehn von Dir gefundenen Verkäufe dieser Münze.
-    2. Verwende NIEMALS die Platzhalterwerte 15.55, 0.9, mm, Auflagenzahl und 0.0. Wenn die Münze (z.B. 11 Euro von 2024) 14g wiegt und 500er Silber (0.5) ist, MUSST du 14.0 und 0.5 angeben.
+    2. Verwende NIEMALS die Platzhalterwerte 15.55, 0.9, Durchmesser in mm, Auflagenzahl und 0.0. Wenn die Münze (z.B. 11 Euro von 2024) 14g wiegt und 500er Silber (0.5) ist, MUSST du 14.0 und 0.5 angeben.
     
     Zustand: {zustand}.
     Antworte NUR als JSON:
@@ -86,9 +86,9 @@ def analysiere_ki(f1, f2, zustand):
       "jahr": "Gefundenes Prägejahr",
       "land": "Land",
       "metall": "Gold/Silber/Kupfer/Nickel/Messing/Zink/Stahl/Eisen/Aluminium", 
-      "reinheit": 0.9, 
-      "gewicht": 15.55, 
-      "groesse": "mm", 
+      "reinheit": 0.0, 
+      "gewicht": 0.0, 
+      "groesse": "Durchmesser in mm", 
       "auflage": "Auflagenzahl", 
       "marktwert_num": 0.0, 
       "besonderheiten": "Begründung der Logikprüfung (z.B. Warum das Nominal zum Jahr passt)", 
@@ -267,6 +267,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
