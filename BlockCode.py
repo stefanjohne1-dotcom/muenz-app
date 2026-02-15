@@ -58,10 +58,10 @@ def analysiere_ki(f1, f2, zustand):
     
     WICHTIGSTE REGELN:
     1. PRÄGEJAHR-CHECK: Das Jahr ist dein wichtigster Parameter.
-    2. LOGIK-ABGLEICH: Gleiche das Jahr zwingend mit den Symbolen ab. 
+    2. LOGIK-ABGLEICH: Gleiche das Prägejahr zwingend mit den Symbolen/Wappen ab. 
        Beispiel: Ein Jahr von 1950 passt nicht zu einem Kaiser-Porträt oder Wappen des 19. Jahrhunderts.
-    3. BEI WIDERSPRUCH: Wenn das Jahr nicht zum Wappen, Land oder Herrscher passt, 
-       schreibe in das Feld "name": "FEHLER: Logik-Widerspruch (Jahr/Wappen)".
+    3. WICHTIG: Berücksichtige moderne Sonderausgaben! Nominale wie 11 Euro (z.B. Deutschland 2024), 25 Euro oder andere ungewöhnliche Gedenkmünzen-Werte sind KEIN Fehler
+    4. Nur wenn das Jahr absolut NICHT zur Epoche passt (z.B. Jahr 2024 bei einem Kaiserreich-Adler oder Eisernes Kreuz), beginne den "name" mit dem Wort "FEHLER:".
     
     Zustand: {zustand}.
     Antworte NUR als JSON:
@@ -75,7 +75,7 @@ def analysiere_ki(f1, f2, zustand):
       "groesse": "mm", 
       "auflage": "Auflagenzahl", 
       "marktwert_num": 0.0, 
-      "besonderheiten": "Warum passt das Jahr zum Wappen? (Kurze Begründung)", 
+      "besonderheiten": "Begründung der Logikprüfung (z.B. Warum das Nominal zum Jahr passt)", 
       "info": "Historischer Kontext, Sind Fehlprägungen bekannt? (3-4 Sätze)"
     }}
     """
@@ -251,6 +251,7 @@ elif st.session_state.page == 'sammlung':
                 st.info("Archiv ist noch leer.")
     except Exception as e:
         st.error(f"Datenbankfehler: {e}")
+
 
 
 
