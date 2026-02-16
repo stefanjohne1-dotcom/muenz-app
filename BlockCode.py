@@ -323,4 +323,5 @@ elif st.session_state.page == "collection":
                 st.write(f"Motiv: {m['motiv']}")
                 st.write(f"Analyse: {m['analyse_begruendung']}")
     else:
-st.info("Noch keine Münzen gespeichert.")
+        st.info("Noch keine Münzen gespeichert.")
+
