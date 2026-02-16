@@ -213,20 +213,98 @@ def run_analysis_pipeline(img1, img2):
 # UI
 # --------------------------------------------------
 
-st.set_page_config(page_title="Münz Scanner – Self Verified", layout="centered")
+st.set_page_config(page_title="Münz-Archiv", layout="centered", initial_sidebar_state="collapsed")
+
+st.markdown("""
+<style>
+
+/* Gesamt-Hintergrund */
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #1c1b18;
+    color: #e8e6df;
+    font-family: "Georgia", serif;
+}
+
+/* Hauptcontainer schmaler für Mobile */
+.block-container {
+    padding-top: 2rem;
+    max-width: 500px;
+}
+
+/* Karten-Stil */
+.library-card {
+    background-color: #2a2925;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+    border: 1px solid #3a382f;
+}
+
+/* Titel im Goldton */
+.library-title {
+    color: #c8a96a;
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+/* Buttons */
+div.stButton > button:first-child {
+    background-color: #8b6f3d;
+    color: #fff;
+    border-radius: 10px;
+    height: 3em;
+    font-weight: 600;
+    border: none;
+    width: 100%;
+}
+
+div.stButton > button:first-child:hover {
+    background-color: #a3844a;
+    color: white;
+}
+
+/* Upload Bereich */
+[data-testid="stFileUploader"] {
+    background-color: #2a2925;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #3a382f;
+}
+
+/* JSON Ausgabe */
+[data-testid="stJson"] {
+    background-color: #22211d;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Success / Warning Farben anpassen */
+[data-testid="stAlert"] {
+    border-radius: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # HOME
 if st.session_state.page == "home":
 
-    st.title("🪙 Münz Scanner – Self Verified")
+    st.markdown("""
+    <div class="library-card">
+        <div class="library-title">🔎 Münz Archiv</div>
+        <p>Untersuche, katalogisiere und archiviere deine Funde wie ein Detektiv vergangener Zeiten.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    if st.button("Neue Münze scannen"):
+    if st.button("🪙 Neue Münze untersuchen"):
         st.session_state.page = "scan"
         st.rerun()
 
-    if st.button("Sammlung"):
+    if st.button("📚 Archiv öffnen"):
         st.session_state.page = "collection"
         st.rerun()
+
 
 # SCAN
 elif st.session_state.page == "scan":
@@ -264,7 +342,7 @@ elif st.session_state.page == "scan":
         if data is None:
             st.error("Fehler bei KI-Antwort.")
         else:
-            st.json(data)
+            st.json(result)
 
             confidence = data.get("confidence", 0)
 
@@ -324,4 +402,5 @@ elif st.session_state.page == "collection":
                 st.write(f"Analyse: {m['analyse_begruendung']}")
     else:
         st.info("Noch keine Münzen gespeichert.")
+
 
