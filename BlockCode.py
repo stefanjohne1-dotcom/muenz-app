@@ -82,10 +82,10 @@ def analyze_coin(image1_bytes, image2_bytes):
     prompt = """
     Du bist ein numismatischer Ermittler und eine Münz-Analyse-KI.
 
-    Analysiere ausschließlich sichtbare Merkmale(Jahr, Nennwert, Währung, Land, Symbole
+    Analysiere ausschließlich sichtbare Merkmale(Nennwert, Land, Währung, Symbol, Jahr).
     Keine Spekulation.
     Keine erfundenen Daten.
-    Prüfe auf Plausibilität (passt Jahr zur Epoche?, Widersprüche).
+    Prüfe auf Plausibilität (Passt das Jahr und Symbol zur Epoche?, Widersprüche?)
 
     Antworte nur als JSON:
 
@@ -183,4 +183,50 @@ def verify_analysis(analysis_json):
 
 # ==============================
 # 🕯 UI Bereich
-#
+# ==============================
+
+st.markdown("""
+<div class="library-card">
+    <div class="library-title">🔎 Beweisaufnahme</div>
+    <p>Lade beide Seiten der Münze hoch, um die Untersuchung zu beginnen.</p>
+</div>
+""", unsafe_allow_html=True)
+
+foto1 = st.file_uploader("Vorderseite", type=["jpg", "jpeg", "png"])
+foto2 = st.file_uploader("Rückseite", type=["jpg", "jpeg", "png"])
+
+if st.button("🔍 Beweis analysieren") and foto1 and foto2:
+
+    with st.spinner("🕯 Die Archive werden geöffnet..."):
+        img1 = optimize_image(foto1.read())
+        img2 = optimize_image(foto2.read())
+        result = analyze_coin(img1, img2)
+
+    if result:
+
+        confidence = result.get("confidence", 0)
+
+        # 🔥 Self Verification nur wenn Confidence niedrig
+        if confidence < 0.75:
+
+            with st.spinner("🔮 Die Archivwächter prüfen die Aussage..."):
+                verification = verify_analysis(result)
+
+            if verification:
+
+                adjustment = verification.get("confidence_adjustment", 0)
+                new_conf = max(0.0, min(1.0, confidence + adjustment))
+                result["confidence"] = new_conf
+
+                if verification.get("hallucination_detected"):
+                    result["beschreibung"] += f"\n\n⚠ Prüfhinweis: {verification.get('reason')}"
+
+        st.markdown("""
+        <div class="library-card">
+            <div class="library-title">📜 Untersuchungsbericht</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown('<div class="library-card">', unsafe_allow_html=True)
+        st.json(result)
+        st.markdown('</div>', unsafe_allow_html=True)
