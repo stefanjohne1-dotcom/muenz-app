@@ -5,9 +5,9 @@ import json
 from PIL import Image
 import io
 
-# ==============================
+# ======================================
 # 🔮 Seitenkonfiguration
-# ==============================
+# ======================================
 
 st.set_page_config(
     page_title="Archiv der Numismatischen Mysterien",
@@ -15,15 +15,13 @@ st.set_page_config(
     layout="centered"
 )
 
-# ==============================
+# ======================================
 # 🎨 Mystisches Design
-# ==============================
+# ======================================
 
 st.markdown("""
 <style>
-body {
-    background-color: #0f1117;
-}
+body { background-color: #0f1117; }
 
 .library-card {
     background: #1a1c23;
@@ -53,180 +51,215 @@ body {
 </style>
 """, unsafe_allow_html=True)
 
-# ==============================
+# ======================================
 # 🖼 Bildoptimierung
-# ==============================
+# ======================================
 
 def optimize_image(image_bytes, max_size=(768, 768), quality=80):
-    image = Image.open(io.BytesIO(image_bytes))
+    try:
+        image = Image.open(io.BytesIO(image_bytes))
 
-    if image.mode != "RGB":
-        image = image.convert("RGB")
+        if image.mode != "RGB":
+            image = image.convert("RGB")
 
-    image.thumbnail(max_size)
+        image.thumbnail(max_size)
 
-    buffer = io.BytesIO()
-    image.save(buffer, format="JPEG", quality=quality, optimize=True)
+        buffer = io.BytesIO()
+        image.save(buffer, format="JPEG", quality=quality, optimize=True)
 
-    return buffer.getvalue()
+        return buffer.getvalue()
+    except Exception:
+        return None
 
-# ==============================
-# 🔍 Hauptanalyse
-# ==============================
+# ======================================
+# 🔧 JSON Absicherung
+# ======================================
 
-def analyze_coin(image1_bytes, image2_bytes):
+def enforce_structure(data):
 
-    base64_image1 = base64.b64encode(image1_bytes).decode("utf-8")
-    base64_image2 = base64.b64encode(image2_bytes).decode("utf-8")
+    if not isinstance(data, dict):
+        return {}
 
-    prompt = """
-    Du bist ein numismatischer Ermittler und eine Münz-Analyse-KI.
-
-    Analysiere ausschließlich sichtbare Merkmale(Nennwert, Land, Währung, Symbol, Jahr).
-    Keine Spekulation.
-    Keine erfundenen Daten.
-    Prüfe auf Plausibilität (Passt das Jahr und Symbol zur Epoche?, Widersprüche?)
-
-    Antworte nur als JSON:
-
-    {
-      "moegliche_identifikation": "",
-      "land": "",
-      "jahr_oder_zeitraum": "",
-      "material": "",
-      "beschreibung": "",
-      "confidence": 0.0
-    }
-    """
-
-    headers = {
-        "Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}",
-        "Content-Type": "application/json"
+    defaults = {
+        "moegliche_identifikation": "",
+        "land": "",
+        "jahr_oder_zeitraum": "",
+        "material": "",
+        "beschreibung": "",
+        "confidence": 0.0
     }
 
-    payload = {
-        "model": "gpt-4o-mini",
-        "messages": [
-            {
+    for key, value in defaults.items():
+        data.setdefault(key, value)
+
+    return data
+
+# ======================================
+# 🔍 Analyse
+# ======================================
+
+def analyze_coin(img1, img2):
+
+    try:
+        b1 = base64.b64encode(img1).decode()
+        b2 = base64.b64encode(img2).decode()
+
+        prompt = """
+        Du bist eine Münz-Analyse-KI. KEINE Datenbank.
+        Analysiere ausschließlich sichtbare Merkmale(Nennwert, Land, Symbol, Zahl, Währung).
+        Prüfe auf Plausibilität (passt das Jahr zur Epoche? Widersprüche?)
+        Keine Spekulation, kein Raten.
+        Antworte nur als JSON.
+        """
+
+        headers = {
+            "Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [{
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image1}"}},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image2}"}}
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b1}"}},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b2}"}}
                 ]
-            }
-        ],
-        "max_tokens": 700,
-        "response_format": {"type": "json_object"}
-    }
+            }],
+            "max_tokens": 600,
+            "response_format": {"type": "json_object"}
+        }
 
-    response = requests.post(
+        response = requests.post(
 "https://api.openai.com/v1/chat/completions",
-        headers=headers,
-        json=payload
-    )
+            headers=headers,
+            json=payload,
+            timeout=60
+        )
 
-    if response.status_code != 200:
-        st.error("Analyse fehlgeschlagen.")
+        if response.status_code != 200:
+            return None
+
+        content = response.json()["choices"][0]["message"]["content"]
+
+        parsed = json.loads(content)
+
+        return enforce_structure(parsed)
+
+    except Exception:
         return None
 
-    return json.loads(response.json()["choices"][0]["message"]["content"])
-
-# ==============================
+# ======================================
 # 🔎 Self Verification
-# ==============================
+# ======================================
 
-def verify_analysis(analysis_json):
+def verify_analysis(result):
 
-    verification_prompt = f"""
-    Du bist ein Archiv-Wächter.
+    try:
+        verification_prompt = f"""
+        Prüfe auf Halluzination oder Spekulation.
+        Antworte als JSON:
+        {{
+            "hallucination_detected": false,
+            "confidence_adjustment": 0.0,
+            "reason": ""
+        }}
 
-    Prüfe die folgende Analyse auf:
-    - Spekulation
-    - erfundene Details
-    - übertriebene Sicherheit
+        Analyse:
+        {json.dumps(result)}
+        """
 
-    Antworte nur als JSON:
+        headers = {
+            "Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}",
+            "Content-Type": "application/json"
+        }
 
-    {{
-      "hallucination_detected": false,
-      "confidence_adjustment": 0.0,
-      "reason": ""
-    }}
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [{"role": "user", "content": verification_prompt}],
+            "max_tokens": 300,
+            "response_format": {"type": "json_object"}
+        }
 
-    Analyse:
-    {json.dumps(analysis_json)}
-    """
-
-    headers = {
-        "Authorization": f"Bearer {st.secrets['OPENAI_API_KEY']}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "model": "gpt-4o-mini",
-        "messages": [{"role": "user", "content": verification_prompt}],
-        "max_tokens": 300,
-        "response_format": {"type": "json_object"}
-    }
-
-    response = requests.post(
+        response = requests.post(
 "https://api.openai.com/v1/chat/completions",
-        headers=headers,
-        json=payload
-    )
+            headers=headers,
+            json=payload,
+            timeout=60
+        )
 
-    if response.status_code != 200:
+        if response.status_code != 200:
+            return None
+
+        verification = json.loads(
+            response.json()["choices"][0]["message"]["content"]
+        )
+
+        verification.setdefault("hallucination_detected", False)
+        verification.setdefault("confidence_adjustment", 0.0)
+        verification.setdefault("reason", "")
+
+        return verification
+
+    except Exception:
         return None
 
-    return json.loads(response.json()["choices"][0]["message"]["content"])
-
-# ==============================
-# 🕯 UI Bereich
-# ==============================
+# ======================================
+# 🕯 UI
+# ======================================
 
 st.markdown("""
 <div class="library-card">
-    <div class="library-title">🔎 Beweisaufnahme</div>
-    <p>Lade beide Seiten der Münze hoch, um die Untersuchung zu beginnen.</p>
+<div class="library-title">🔎 Beweisaufnahme</div>
+Lade beide Seiten der Münze hoch.
 </div>
 """, unsafe_allow_html=True)
 
-foto1 = st.file_uploader("Vorderseite", type=["jpg", "jpeg", "png"])
-foto2 = st.file_uploader("Rückseite", type=["jpg", "jpeg", "png"])
+foto1 = st.file_uploader("Vorderseite", type=["jpg","jpeg","png"])
+foto2 = st.file_uploader("Rückseite", type=["jpg","jpeg","png"])
 
 if st.button("🔍 Beweis analysieren") and foto1 and foto2:
 
-    with st.spinner("🕯 Die Archive werden geöffnet..."):
+    with st.spinner("🕯 Untersuchung läuft..."):
         img1 = optimize_image(foto1.read())
         img2 = optimize_image(foto2.read())
+
+        if not img1 or not img2:
+            st.error("Bildverarbeitung fehlgeschlagen.")
+            st.stop()
+
         result = analyze_coin(img1, img2)
 
-    if result:
+    if not result:
+        st.error("Analyse fehlgeschlagen.")
+        st.stop()
 
-        confidence = result.get("confidence", 0)
+    confidence = result.get("confidence", 0)
 
-        # 🔥 Self Verification nur wenn Confidence niedrig
-        if confidence < 0.75:
+    # 🔮 Self Verification nur bei Bedarf
+    if confidence < 0.75:
 
-            with st.spinner("🔮 Die Archivwächter prüfen die Aussage..."):
-                verification = verify_analysis(result)
+        with st.spinner("🔮 Archivwächter prüfen die Aussage..."):
+            verification = verify_analysis(result)
 
-            if verification:
+        if verification:
 
-                adjustment = verification.get("confidence_adjustment", 0)
-                new_conf = max(0.0, min(1.0, confidence + adjustment))
-                result["confidence"] = new_conf
+            adjustment = verification.get("confidence_adjustment", 0)
+            result["confidence"] = max(
+                0.0,
+                min(1.0, confidence + adjustment)
+            )
 
-                if verification.get("hallucination_detected"):
-                    result["beschreibung"] += f"\n\n⚠ Prüfhinweis: {verification.get('reason')}"
+            if verification.get("hallucination_detected"):
+                result["beschreibung"] += (
+                    f"\n\n⚠ Prüfhinweis: {verification.get('reason','')}"
+                )
 
-        st.markdown("""
-        <div class="library-card">
-            <div class="library-title">📜 Untersuchungsbericht</div>
-        </div>
-        """, unsafe_allow_html=True)
+    # ======================================
+    # 📜 Ausgabe
+    # ======================================
 
-        st.markdown('<div class="library-card">', unsafe_allow_html=True)
-        st.json(result)
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="library-card">', unsafe_allow_html=True)
+    st.json(result)
+    st.markdown('</div>', unsafe_allow_html=True)
