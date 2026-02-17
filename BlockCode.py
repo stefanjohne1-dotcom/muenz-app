@@ -499,11 +499,12 @@ elif st.session_state.page == 'sammlung':
 
         else:
 
-        st.info("Das Archiv ist aktuell noch leer. Scanne deine erste Münze!")
+            st.info("Das Archiv ist aktuell noch leer. Scanne deine erste Münze!")
 
             
 
     except Exception as e:
 
         st.error(f"Fehler beim Laden: {e}")
+
 
